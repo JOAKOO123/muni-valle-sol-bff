@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Configuracion local
+application-local.properties
+application-dev.properties
+
+# Variables de entorno
+.env
+
+# Credenciales y secretos
+*.key
+*.pem
+secrets/
