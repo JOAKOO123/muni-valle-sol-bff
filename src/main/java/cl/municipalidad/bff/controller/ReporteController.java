@@ -12,14 +12,17 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reportes")
-@RequiredArgsConstructor
 public class ReporteController {
 
     private final ReporteService reporteService;
 
+    public ReporteController(ReporteService reporteService) {
+        this.reporteService = reporteService;
+    }       
+
     @GetMapping
     public ResponseEntity<List<ReporteDTO>> listarTodos() {
-        return ResponseEntity.ok(reporteService.listarTodos());
+        return ResponseEntity.ok(reporteService.findAll());
     }
 
     @GetMapping("/activos")
