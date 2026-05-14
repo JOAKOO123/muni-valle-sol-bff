@@ -1,6 +1,8 @@
 package cl.municipalidad.bff.dto;
 
 public record LoginResponseDTO(
-    String token,
+    Long id,
+    String nombre,
+    String email,
     String rol
 ) {}
