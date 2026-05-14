@@ -43,3 +43,9 @@ application-dev.properties
 *.key
 *.pem
 secrets/
+
+# Local application properties
+application.properties
+
+# Env files
+*.env
