@@ -43,4 +43,17 @@ public class ReporteController {
             @RequestBody Map<String, String> body) {
         return ResponseEntity.ok(reporteService.actualizarEstado(id, body.get("estado")));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReporteDTO> actualizarTitulo(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(reporteService.actualizarTitulo(id, body.get("titulo")));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        reporteService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

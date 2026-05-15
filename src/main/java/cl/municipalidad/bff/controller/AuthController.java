@@ -6,6 +6,9 @@ import cl.municipalidad.bff.dto.RegisterRequestDTO;
 import cl.municipalidad.bff.dto.TokenResponseDTO;
 import cl.municipalidad.bff.dto.UsuarioDTO;
 import cl.municipalidad.bff.service.AuthService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Key;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,6 +31,9 @@ public class AuthController {
 
     @Value("${jwt.cookie.maxage}")
     private int cookieMaxAge;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(
@@ -81,6 +89,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return ResponseEntity.ok(authService.obtenerUsuario(token));
+        try {
+            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String email = claims.getSubject();
+            return ResponseEntity.ok(authService.obtenerUsuario(email));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

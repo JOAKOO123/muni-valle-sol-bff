@@ -42,6 +42,14 @@ public class ReporteService {
         return toDTO(reporteClient.actualizarEstado(id, estado));
     }
 
+    public ReporteDTO actualizarTitulo(Long id, String titulo) {
+        return toDTO(reporteClient.actualizarTitulo(id, titulo));
+    }
+
+    public void eliminar(Long id) {
+        reporteClient.eliminar(id);
+    }
+
     private ReporteDTO toDTO(ReporteMsDTO ms) {
         UbicacionDTO ubicacion = new UbicacionDTO(ms.latitud(), ms.longitud());
         return new ReporteDTO(

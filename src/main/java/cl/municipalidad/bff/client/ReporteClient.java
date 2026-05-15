@@ -73,4 +73,27 @@ public class ReporteClient {
                 .bodyToMono(ReporteMsDTO.class)
                 .block();
     }
+
+    public ReporteMsDTO actualizarTitulo(Long id, String titulo) {
+        return msReportesClient.put()
+                .uri("/api/reportes/{id}", id)
+                .bodyValue(Map.of("titulo", titulo))
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals,
+                    response -> response.bodyToMono(String.class)
+                        .map(body -> new MsException("Reporte no encontrado", HttpStatus.NOT_FOUND)))
+                .bodyToMono(ReporteMsDTO.class)
+                .block();
+    }
+
+    public void eliminar(Long id) {
+        msReportesClient.delete()
+                .uri("/api/reportes/{id}", id)
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals,
+                    response -> response.bodyToMono(String.class)
+                        .map(body -> new MsException("Reporte no encontrado", HttpStatus.NOT_FOUND)))
+                .bodyToMono(Void.class)
+                .block();
+    }
 }
