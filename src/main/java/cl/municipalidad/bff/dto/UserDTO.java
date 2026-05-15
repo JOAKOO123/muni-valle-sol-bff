@@ -1,6 +1,6 @@
 package cl.municipalidad.bff.dto;
 
-public record UsuarioDTO(
+public record UserDTO(
     Long id,
     String nombre,
     String email,

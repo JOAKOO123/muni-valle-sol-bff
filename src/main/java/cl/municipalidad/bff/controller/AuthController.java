@@ -4,7 +4,7 @@ import cl.municipalidad.bff.dto.LoginRequestDTO;
 import cl.municipalidad.bff.dto.LoginResponseDTO;
 import cl.municipalidad.bff.dto.RegisterRequestDTO;
 import cl.municipalidad.bff.dto.TokenResponseDTO;
-import cl.municipalidad.bff.dto.UsuarioDTO;
+import cl.municipalidad.bff.dto.UserDTO;
 import cl.municipalidad.bff.service.AuthService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -41,7 +41,7 @@ public class AuthController {
             HttpServletResponse response) {
 
         TokenResponseDTO tokenResponse = authService.login(request);
-        UsuarioDTO usuario = authService.obtenerUsuario(request.email());
+        UserDTO user = authService.getUser(request.email());
 
         ResponseCookie cookie = ResponseCookie.from(cookieName, tokenResponse.token())
                 .httpOnly(true)
@@ -54,16 +54,16 @@ public class AuthController {
         response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok(new LoginResponseDTO(
-                usuario.id(),
-                usuario.nombre(),
-                usuario.email(),
-                usuario.rol()
+                user.id(),
+                user.nombre(),
+                user.email(),
+                user.rol()
         ));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UsuarioDTO> registrar(@RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registrar(request));
+    public ResponseEntity<UserDTO> register(@RequestBody RegisterRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
 
     @PostMapping("/logout")
@@ -82,7 +82,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UsuarioDTO> me(
+    public ResponseEntity<UserDTO> me(
             @CookieValue(name = "access_token", required = false) String token) {
 
         if (token == null) {
@@ -98,10 +98,11 @@ public class AuthController {
                     .getBody();
 
             String email = claims.getSubject();
-            return ResponseEntity.ok(authService.obtenerUsuario(email));
+            return ResponseEntity.ok(authService.getUser(email));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
+

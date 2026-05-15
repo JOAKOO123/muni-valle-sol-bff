@@ -3,7 +3,7 @@ package cl.municipalidad.bff.client;
 import cl.municipalidad.bff.dto.LoginRequestDTO;
 import cl.municipalidad.bff.dto.RegisterRequestDTO;
 import cl.municipalidad.bff.dto.TokenResponseDTO;
-import cl.municipalidad.bff.dto.UsuarioDTO;
+import cl.municipalidad.bff.dto.UserDTO;
 import cl.municipalidad.bff.exception.MsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 @RequiredArgsConstructor
-public class UsuarioClient {
+public class UserClient {
 
     @Qualifier("msUsuariosClient")
     private final WebClient msUsuariosClient;
@@ -30,7 +30,7 @@ public class UsuarioClient {
                 .block();
     }
 
-    public UsuarioDTO registrar(RegisterRequestDTO request) {
+    public UserDTO register(RegisterRequestDTO request) {
         return msUsuariosClient.post()
                 .uri("/api/usuarios/register")
                 .bodyValue(request)
@@ -41,18 +41,18 @@ public class UsuarioClient {
                 .onStatus(HttpStatus.CONFLICT::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("El email ya esta registrado", HttpStatus.CONFLICT)))
-                .bodyToMono(UsuarioDTO.class)
+                .bodyToMono(UserDTO.class)
                 .block();
     }
 
-    public UsuarioDTO obtenerPorEmail(String email) {
+    public UserDTO findByEmail(String email) {
         return msUsuariosClient.get()
                 .uri("/api/usuarios/email/{email}", email)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Usuario no encontrado", HttpStatus.NOT_FOUND)))
-                .bodyToMono(UsuarioDTO.class)
+                .bodyToMono(UserDTO.class)
                 .block();
     }
 }

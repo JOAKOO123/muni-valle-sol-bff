@@ -1,6 +1,6 @@
 package cl.municipalidad.bff.dto;
 
-public record UbicacionDTO(
+public record LocationDTO(
     Double lat,
     Double lng
 ) {}

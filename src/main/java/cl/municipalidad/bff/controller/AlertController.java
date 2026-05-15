@@ -1,7 +1,7 @@
 package cl.municipalidad.bff.controller;
 
-import cl.municipalidad.bff.dto.AlertaDTO;
-import cl.municipalidad.bff.service.AlertaService;
+import cl.municipalidad.bff.dto.AlertDTO;
+import cl.municipalidad.bff.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +13,19 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/alertas")
 @RequiredArgsConstructor
-public class AlertaController {
+public class AlertController {
 
-    private final AlertaService alertaService;
+    private final AlertService alertService;
 
     @GetMapping
-    public ResponseEntity<List<AlertaDTO>> listarAlertas() {
-        return ResponseEntity.ok(alertaService.listarAlertas());
+    public ResponseEntity<List<AlertDTO>> listAlerts() {
+        return ResponseEntity.ok(alertService.listAlerts());
     }
 
     @PostMapping
-    public ResponseEntity<AlertaDTO> crear(@RequestBody Map<String, String> body) {
+    public ResponseEntity<AlertDTO> create(@RequestBody Map<String, String> body) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(alertaService.crear(
+                .body(alertService.create(
                         body.get("titulo"),
                         body.get("descripcion"),
                         body.get("severidad")
