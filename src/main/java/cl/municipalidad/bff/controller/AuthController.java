@@ -75,7 +75,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UsuarioDTO> me(
-            @CookieValue(name = "${jwt.cookie.name}", required = false) String token) {
+            @CookieValue(name = "access_token", required = false) String token) {
 
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
