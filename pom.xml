@@ -110,6 +110,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -146,6 +147,68 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<id>jacoco-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+							<excludes>
+								<!-- Sin lógica de negocio: punto de entrada Spring Boot -->
+								<exclude>cl/municipalidad/bff/BffApplication.class</exclude>
+
+								<!-- Sin lógica de negocio: solo configuración de beans -->
+								<exclude>cl/municipalidad/bff/config/**</exclude>
+
+								<!-- Sin lógica de negocio: solo campos y constructores (records/Lombok) -->
+								<exclude>cl/municipalidad/bff/dto/**</exclude>
+
+								<!-- Sin lógica de negocio: excepción simple con Lombok -->
+								<exclude>cl/municipalidad/bff/exception/MsException.class</exclude>
+
+								<!-- Integración con WebClient: requiere tests de integración, no unitarios -->
+								<exclude>cl/municipalidad/bff/client/**</exclude>
+
+								<!-- AuthController no tiene test unitario aún -->
+								<exclude>cl/municipalidad/bff/controller/AuthController.class</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
