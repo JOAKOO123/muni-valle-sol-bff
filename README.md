@@ -24,7 +24,7 @@ Capa intermediaria entre el frontend Next.js y los microservicios internos. Cent
 
 | Tecnología | Versión | Propósito |
 |---|---|---|
-| Java | 17 | Lenguaje de programación |
+| Java | 21 | Lenguaje de programación |
 | Spring Boot | 4.0.6 | Framework principal |
 | Spring WebMVC | Incluido | API REST síncrona |
 | Spring WebFlux / WebClient | Incluido | Comunicación reactiva con microservicios |
