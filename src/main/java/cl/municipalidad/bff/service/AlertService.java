@@ -9,12 +9,31 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Servicio de alertas del BFF.
+ * Genera alertas a partir de reportes activos y permite crear alertas manuales.
+ *
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Facade Pattern: expone interfaz simplificada al controller</li>
+ *   <li>Single Responsibility: solo gestiona logica de alertas</li>
+ * </ul>
+ *
+ * @author Beltran
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class AlertService {
 
     private final ReportService reportService;
 
+    /**
+     * Lista todas las alertas activas derivadas de reportes con estado ACTIVO.
+     * Convierte cada reporte activo en una alerta con severidad calculada segun su tipo.
+     *
+     * @return lista de AlertDTO con las alertas activas
+     */
     public List<AlertDTO> listAlerts() {
         return reportService.listAll()
                 .stream()
@@ -23,6 +42,14 @@ public class AlertService {
                 .toList();
     }
 
+    /**
+     * Crea una nueva alerta manual con los datos proporcionados.
+     *
+     * @param title       titulo de la alerta
+     * @param description descripcion de la alerta
+     * @param severity    severidad de la alerta (ALTA, MEDIA, BAJA)
+     * @return AlertDTO con la alerta creada
+     */
     public AlertDTO create(String title, String description, String severity) {
         return new AlertDTO(
                 UUID.randomUUID().toString(),
@@ -33,6 +60,13 @@ public class AlertService {
         );
     }
 
+    /**
+     * Convierte un ReportDTO en un AlertDTO asignando severidad segun el tipo de reporte.
+     * INCENDIO -> ALTA, HUMO -> MEDIA, SOSPECHOSO -> BAJA, otros -> MEDIA.
+     *
+     * @param report ReportDTO a convertir
+     * @return AlertDTO con severidad calculada
+     */
     private AlertDTO toAlertDTO(ReportDTO report) {
         String severity = switch (report.tipo()) {
             case "INCENDIO"   -> "ALTA";

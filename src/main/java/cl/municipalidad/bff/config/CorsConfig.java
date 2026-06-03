@@ -5,6 +5,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Configuracion de CORS del BFF.
+ * Permite solicitudes cross-origin desde los origenes configurados.
+ *
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Configuration Pattern: centralizacion de configuracion de seguridad</li>
+ * </ul>
+ *
+ * @author Beltran
+ * @version 1.0
+ */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 

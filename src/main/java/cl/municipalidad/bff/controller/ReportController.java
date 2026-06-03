@@ -10,6 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador de reportes del BFF.
+ * Expone los endpoints REST para la gestion de reportes de incendios.
+ *
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Facade Pattern: delega toda la logica al ReportService</li>
+ *   <li>Single Responsibility: solo gestiona endpoints de reportes</li>
+ * </ul>
+ *
+ * @author Beltran
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/reportes")
 @RequiredArgsConstructor

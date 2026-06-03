@@ -11,6 +11,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+/**
+ * Cliente HTTP para el MS-Usuarios.
+ * Encapsula todas las llamadas al microservicio de usuarios via WebClient.
+ *
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Gateway Pattern: punto unico de acceso al MS-Usuarios</li>
+ *   <li>Single Responsibility: solo gestiona comunicacion con MS-Usuarios</li>
+ * </ul>
+ *
+ * @author Beltran
+ * @version 1.0
+ */
 @Component
 @RequiredArgsConstructor
 public class UserClient {
@@ -18,6 +31,13 @@ public class UserClient {
     @Qualifier("msUsuariosClient")
     private final WebClient msUsuariosClient;
 
+    /**
+     * Autentica un usuario y obtiene el token JWT.
+     *
+     * @param request DTO con email y password del usuario
+     * @return TokenResponseDTO con el token JWT generado
+     * @throws MsException si las credenciales son incorrectas (401)
+     */
     public TokenResponseDTO login(LoginRequestDTO request) {
         return msUsuariosClient.post()
                 .uri("/api/usuarios/login")
@@ -30,6 +50,13 @@ public class UserClient {
                 .block();
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param request DTO con los datos del nuevo usuario
+     * @return UserDTO con los datos del usuario registrado
+     * @throws MsException si los datos son invalidos (400) o el email ya existe (409)
+     */
     public UserDTO register(RegisterRequestDTO request) {
         return msUsuariosClient.post()
                 .uri("/api/usuarios/register")
@@ -45,6 +72,13 @@ public class UserClient {
                 .block();
     }
 
+    /**
+     * Busca un usuario por su email.
+     *
+     * @param email email del usuario a buscar
+     * @return UserDTO con los datos del usuario
+     * @throws MsException si el usuario no existe (404)
+     */
     public UserDTO findByEmail(String email) {
         return msUsuariosClient.get()
                 .uri("/api/usuarios/email/{email}", email)

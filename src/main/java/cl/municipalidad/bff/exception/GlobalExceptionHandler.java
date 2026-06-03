@@ -8,6 +8,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/**
+ * Manejador global de excepciones del BFF.
+ * Intercepta excepciones y retorna respuestas HTTP con formato estandarizado.
+ *
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Chain of Responsibility: intercepta excepciones en cascada</li>
+ *   <li>Single Responsibility: centraliza el manejo de errores</li>
+ * </ul>
+ *
+ * @author Beltran
+ * @version 1.0
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
