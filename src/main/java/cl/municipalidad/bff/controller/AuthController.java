@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @RestController
 @RequestMapping("/api/auth")

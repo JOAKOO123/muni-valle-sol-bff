@@ -9,13 +9,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Configuracion de CORS del BFF.
  * Permite solicitudes cross-origin desde los origenes configurados.
  *
- * <p>Patrones aplicados:</p>
- * <ul>
- *   <li>Configuration Pattern: centralizacion de configuracion de seguridad</li>
- * </ul>
+ * Patrones aplicados:
+
+ * 
+
+ *   - Configuration Pattern: centralizacion de configuracion de seguridad
+
+ * 
  *
  * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -23,6 +27,12 @@ public class CorsConfig implements WebMvcConfigurer {
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
 
+    /**
+     * Registra las reglas de CORS permitiendo metodos estandar y credenciales
+     * desde los origenes configurados en application.properties.
+     *
+     * @param registry registro de mapeos CORS de Spring MVC
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

@@ -20,10 +20,17 @@ import java.util.Map;
  *
  * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Maneja excepciones genericas de runtime no controladas.
+     *
+     * @param ex excepcion capturada
+     * @return ResponseEntity con status 500 y detalle del error
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -35,6 +42,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Maneja excepciones de microservicios con status HTTP especifico.
+     *
+     * @param ex MsException con mensaje y status HTTP del microservicio
+     * @return ResponseEntity con el status y detalle del error del microservicio
+     */
     @ExceptionHandler(MsException.class)
     public ResponseEntity<Map<String, Object>> handleMsException(MsException ex) {
         return ResponseEntity.status(ex.getStatus()).body(

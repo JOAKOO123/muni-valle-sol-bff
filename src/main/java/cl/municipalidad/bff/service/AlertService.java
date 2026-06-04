@@ -21,6 +21,7 @@ import java.util.UUID;
  *
  * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @Service
 @RequiredArgsConstructor
