@@ -7,17 +7,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * Configuracion de los clientes HTTP WebClient del BFF.
- * Define los beans para comunicarse con MS-Usuarios y MS-Reportes.
+ * Define los beans para comunicarse con MS-Usuarios, MS-Reportes y MS-Alertas.
  *
- * Patrones aplicados:
-
- * 
-
- *   - Factory Pattern: creacion centralizada de clientes HTTP
-
- *   - Configuration Pattern: externalizacion de URLs en application.properties
-
- * 
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Factory Pattern: creacion centralizada de clientes HTTP</li>
+ *   <li>Configuration Pattern: externalizacion de URLs en application.properties</li>
+ * </ul>
  *
  * @author Beltran
  * @version 1.0
@@ -31,6 +27,9 @@ public class WebClientConfig {
 
     @Value("${ms.reportes.url}")
     private String msReportesUrl;
+
+    @Value("${ms.alertas.url}")
+    private String msAlertasUrl;
 
     /**
      * Crea el WebClient para el MS-Usuarios.
@@ -53,6 +52,18 @@ public class WebClientConfig {
     public WebClient msReportesClient() {
         return WebClient.builder()
                 .baseUrl(msReportesUrl)
+                .build();
+    }
+
+    /**
+     * Crea el WebClient para el MS-Alertas.
+     *
+     * @return WebClient configurado con la URL base del MS-Alertas
+     */
+    @Bean
+    public WebClient msAlertasClient() {
+        return WebClient.builder()
+                .baseUrl(msAlertasUrl)
                 .build();
     }
 }
