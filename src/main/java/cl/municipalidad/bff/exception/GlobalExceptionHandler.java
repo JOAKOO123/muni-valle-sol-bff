@@ -26,6 +26,26 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
+     * Maneja excepciones de microservicios con status HTTP especifico.
+     * Debe declararse ANTES del handler de RuntimeException porque MsException
+     * extiende RuntimeException; Spring resuelve por tipo mas especifico primero,
+     * pero declarar el mas especifico primero evita ambiguedad.
+     *
+     * @param ex MsException con mensaje y status HTTP del microservicio
+     * @return ResponseEntity con el status y detalle del error del microservicio
+     */
+    @ExceptionHandler(MsException.class)
+    public ResponseEntity<Map<String, Object>> handleMsException(MsException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(
+            Map.of(
+                "error", ex.getMessage(),
+                "timestamp", LocalDateTime.now().toString(),
+                "status", ex.getStatus().value()
+            )
+        );
+    }
+
+    /**
      * Maneja excepciones genericas de runtime no controladas.
      *
      * @param ex excepcion capturada
@@ -38,23 +58,6 @@ public class GlobalExceptionHandler {
                 "error", ex.getMessage(),
                 "timestamp", LocalDateTime.now().toString(),
                 "status", 500
-            )
-        );
-    }
-
-    /**
-     * Maneja excepciones de microservicios con status HTTP especifico.
-     *
-     * @param ex MsException con mensaje y status HTTP del microservicio
-     * @return ResponseEntity con el status y detalle del error del microservicio
-     */
-    @ExceptionHandler(MsException.class)
-    public ResponseEntity<Map<String, Object>> handleMsException(MsException ex) {
-        return ResponseEntity.status(ex.getStatus()).body(
-            Map.of(
-                "error", ex.getMessage(),
-                "timestamp", LocalDateTime.now().toString(),
-                "status", ex.getStatus().value()
             )
         );
     }

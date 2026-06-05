@@ -2,7 +2,6 @@ package cl.municipalidad.bff.service;
 
 import cl.municipalidad.bff.client.UserClient;
 import cl.municipalidad.bff.dto.LoginRequestDTO;
-import cl.municipalidad.bff.dto.LoginResponseDTO;
 import cl.municipalidad.bff.dto.RegisterRequestDTO;
 import cl.municipalidad.bff.dto.TokenResponseDTO;
 import cl.municipalidad.bff.dto.UserDTO;
@@ -57,22 +56,5 @@ public class AuthService {
      */
     public UserDTO getUser(String email) {
         return userClient.findByEmail(email);
-    }
-
-    /**
-     * Construye la respuesta de login combinando el token y los datos del usuario.
-     *
-     * @param request DTO con las credenciales del usuario
-     * @return LoginResponseDTO con token y datos del usuario
-     */
-    public LoginResponseDTO buildLoginResponse(LoginRequestDTO request) {
-        TokenResponseDTO tokenResponse = login(request);
-        UserDTO usuario                = getUser(request.email());
-        return new LoginResponseDTO(
-                usuario.id(),
-                usuario.nombre(),
-                usuario.email(),
-                usuario.rol()
-        );
     }
 }

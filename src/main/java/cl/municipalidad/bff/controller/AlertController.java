@@ -14,15 +14,11 @@ import java.util.Map;
  * Controlador de alertas del BFF.
  * Expone los endpoints REST para la gestion de alertas derivadas de reportes.
  *
- * Patrones aplicados:
-
- * 
-
- *   - Facade Pattern: delega toda la logica al AlertService
-
- *   - Single Responsibility: solo gestiona endpoints de alertas
-
- * 
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Facade Pattern: delega toda la logica al AlertService</li>
+ *   <li>Single Responsibility: solo gestiona endpoints de alertas</li>
+ * </ul>
  *
  * @author Beltran
  * @version 1.0
@@ -47,17 +43,29 @@ public class AlertController {
 
     /**
      * Crea una nueva alerta manual en el sistema.
+     * El body debe contener los campos "titulo", "descripcion" y "severidad".
+     * Severidades validas: ALTA, MEDIA, BAJA.
      *
      * @param body mapa con los campos "titulo", "descripcion" y "severidad"
-     * @return AlertDTO con la alerta creada
+     * @return AlertDTO con la alerta creada, o 400 si faltan campos obligatorios
      */
-        @PostMapping
-        public ResponseEntity<AlertDTO> create(@RequestBody Map<String, String> body) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(alertService.create(
-                body.get("titulo"),
-                body.get("descripcion"),
-                body.get("severidad")
-            ));
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Map<String, String> body) {
+        String titulo      = body.get("titulo");
+        String descripcion = body.get("descripcion");
+        String severidad   = body.get("severidad");
+
+        if (titulo == null || titulo.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
         }
+        if (descripcion == null || descripcion.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'descripcion' es obligatorio"));
+        }
+        if (severidad == null || (!severidad.equals("ALTA") && !severidad.equals("MEDIA") && !severidad.equals("BAJA"))) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'severidad' debe ser ALTA, MEDIA o BAJA"));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(alertService.create(titulo, descripcion, severidad));
+    }
 }

@@ -3,16 +3,16 @@ package cl.municipalidad.bff.controller;
 import cl.municipalidad.bff.dto.AlertDTO;
 import cl.municipalidad.bff.service.AlertService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,23 +26,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("AlertController - pruebas de integración web")
 class AlertControllerTest {
 
-        @Mock
-        private AlertService alertService;
+    @Mock
+    private AlertService alertService;
 
-        @InjectMocks
-        private AlertController alertController;
+    @InjectMocks
+    private AlertController alertController;
 
     private MockMvc mockMvc;
 
-        private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final AlertDTO mockAlerta = new AlertDTO(
             "uuid-123", "Incendio Norte", "Fuego activo", "ALTA", LocalDateTime.now());
 
-        @BeforeEach
-        void setUp() {
-                mockMvc = MockMvcBuilders.standaloneSetup(alertController).build();
-        }
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(alertController).build();
+    }
 
     @Test
     @DisplayName("GET /api/alertas debería retornar 200 y la lista de alertas")
@@ -111,5 +111,32 @@ class AlertControllerTest {
                 .andExpect(status().isCreated());
 
         verify(alertService).create("Alerta test", "Desc test", "MEDIA");
+    }
+
+    @Test
+    @DisplayName("POST /api/alertas debería retornar 400 si falta el titulo")
+    void create_retorna400SiFaltaTitulo() throws Exception {
+        Map<String, String> body = Map.of(
+                "descripcion", "Desc",
+                "severidad", "ALTA");
+
+        mockMvc.perform(post("/api/alertas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/alertas debería retornar 400 si la severidad es inválida")
+    void create_retorna400SiSeveridadInvalida() throws Exception {
+        Map<String, String> body = Map.of(
+                "titulo", "Test",
+                "descripcion", "Desc",
+                "severidad", "CRITICA");
+
+        mockMvc.perform(post("/api/alertas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isBadRequest());
     }
 }
