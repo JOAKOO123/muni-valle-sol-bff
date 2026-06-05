@@ -48,7 +48,7 @@ public class AlertService {
      *
      * @param title       titulo de la alerta
      * @param description descripcion de la alerta
-     * @param severity    severidad de la alerta (ALTA, MEDIA, BAJA)
+     * @param severity    severidad de la alerta: ALTA, MEDIA o BAJA
      * @return AlertDTO con la alerta creada
      */
     public AlertDTO create(String title, String description, String severity) {
@@ -63,7 +63,7 @@ public class AlertService {
 
     /**
      * Convierte un ReportDTO en un AlertDTO asignando severidad segun el tipo de reporte.
-     * INCENDIO -> ALTA, HUMO -> MEDIA, SOSPECHOSO -> BAJA, otros -> MEDIA.
+     * INCENDIO → ALTA, HUMO → MEDIA, SOSPECHOSO → BAJA, cualquier otro tipo → MEDIA.
      *
      * @param report ReportDTO a convertir
      * @return AlertDTO con severidad calculada

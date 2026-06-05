@@ -54,11 +54,15 @@ public class ReportClient {
      * Obtiene solo los reportes con estado ACTIVO.
      *
      * @return lista de ReportMsDTO con reportes activos
+     * @throws MsException si ocurre un error interno en el MS-Reportes (500)
      */
     public List<ReportMsDTO> listActive() {
         return msReportesClient.get()
                 .uri("/api/reportes/activos")
                 .retrieve()
+                .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals,
+                    response -> response.bodyToMono(String.class)
+                        .map(body -> new MsException("Error al obtener reportes activos", HttpStatus.INTERNAL_SERVER_ERROR)))
                 .bodyToFlux(ReportMsDTO.class)
                 .collectList()
                 .block();
