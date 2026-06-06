@@ -2,30 +2,17 @@ package cl.municipalidad.bff.service;
 
 import cl.municipalidad.bff.client.ReportClient;
 import cl.municipalidad.bff.dto.ReportDTO;
-import cl.municipalidad.bff.dto.ReportMsDTO;
 import cl.municipalidad.bff.mapper.ReportMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Servicio de reportes del BFF.
- * Orquesta las llamadas al MS-Reportes y transforma las respuestas
- * al formato requerido por el frontend.
- *
- * <p>Patrones aplicados:</p>
- * <ul>
- *   <li>Facade Pattern: expone interfaz simplificada al controller</li>
- *   <li>DTO Pattern: transforma modelos internos a DTOs del frontend</li>
- *   <li>Single Responsibility: solo gestiona logica de reportes</li>
- * </ul>
- *
- * @author Beltran
- * @version 1.0
- * @since 1.0
- */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -33,11 +20,7 @@ public class ReportService {
     private final ReportClient reportClient;
     private final ReportMapper reportMapper;
 
-    /**
-     * Lista todos los reportes de incendios.
-     *
-     * @return lista de ReportDTO con todos los reportes
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "listAllFallback")
     public List<ReportDTO> listAll() {
         return reportClient.listAll()
                 .stream()
@@ -45,11 +28,7 @@ public class ReportService {
                 .toList();
     }
 
-    /**
-     * Lista solo los reportes con estado ACTIVO.
-     *
-     * @return lista de ReportDTO con reportes activos
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "listActiveFallback")
     public List<ReportDTO> listActive() {
         return reportClient.listActive()
                 .stream()
@@ -57,54 +36,65 @@ public class ReportService {
                 .toList();
     }
 
-    /**
-     * Busca un reporte por su identificador unico.
-     *
-     * @param id identificador del reporte
-     * @return ReportDTO con los datos del reporte
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "findByIdFallback")
     public ReportDTO findById(Long id) {
         return reportMapper.toDTO(reportClient.findById(id));
     }
 
-    /**
-     * Crea un nuevo reporte de incendio.
-     *
-     * @param body mapa con los datos del reporte a crear
-     * @return ReportDTO con el reporte creado
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "createFallback")
     public ReportDTO create(Map<String, Object> body) {
         return reportMapper.toDTO(reportClient.create(body));
     }
 
-    /**
-     * Actualiza el estado de un reporte existente.
-     *
-     * @param id     identificador del reporte
-     * @param status nuevo estado del reporte
-     * @return ReportDTO con el reporte actualizado
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "updateStatusFallback")
     public ReportDTO updateStatus(Long id, String status) {
         return reportMapper.toDTO(reportClient.updateStatus(id, status));
     }
 
-    /**
-     * Actualiza el titulo de un reporte existente.
-     *
-     * @param id    identificador del reporte
-     * @param title nuevo titulo del reporte
-     * @return ReportDTO con el reporte actualizado
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "updateTitleFallback")
     public ReportDTO updateTitle(Long id, String title) {
         return reportMapper.toDTO(reportClient.updateTitle(id, title));
     }
 
-    /**
-     * Elimina un reporte por su identificador.
-     *
-     * @param id identificador del reporte a eliminar
-     */
+    @CircuitBreaker(name = "ms-reportes", fallbackMethod = "deleteFallback")
     public void delete(Long id) {
         reportClient.delete(id);
+    }
+
+    // ─── Fallbacks ────────────────────────────────────────────────────────────
+
+    public List<ReportDTO> listAllFallback(Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – listAll: {}", ex.getMessage());
+        return Collections.emptyList();
+    }
+
+    public List<ReportDTO> listActiveFallback(Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – listActive: {}", ex.getMessage());
+        return Collections.emptyList();
+    }
+
+    public ReportDTO findByIdFallback(Long id, Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – findById: {}", ex.getMessage());
+        throw new RuntimeException("Servicio de reportes no disponible temporalmente");
+    }
+
+    public ReportDTO createFallback(Map<String, Object> body, Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – create: {}", ex.getMessage());
+        throw new RuntimeException("Servicio de reportes no disponible temporalmente");
+    }
+
+    public ReportDTO updateStatusFallback(Long id, String status, Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – updateStatus: {}", ex.getMessage());
+        throw new RuntimeException("Servicio de reportes no disponible temporalmente");
+    }
+
+    public ReportDTO updateTitleFallback(Long id, String title, Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – updateTitle: {}", ex.getMessage());
+        throw new RuntimeException("Servicio de reportes no disponible temporalmente");
+    }
+
+    public void deleteFallback(Long id, Throwable ex) {
+        log.warn("[CircuitBreaker] ms-reportes abierto – delete: {}", ex.getMessage());
+        throw new RuntimeException("Servicio de reportes no disponible temporalmente");
     }
 }
