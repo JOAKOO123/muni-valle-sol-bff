@@ -53,3 +53,4 @@ application.properties
 # Node (presente por package.json en la raiz)
 node_modules/
 package-lock.json
+package.json
