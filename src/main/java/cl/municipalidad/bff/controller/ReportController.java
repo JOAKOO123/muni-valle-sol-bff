@@ -1,6 +1,10 @@
 package cl.municipalidad.bff.controller;
 
+import cl.municipalidad.bff.dto.CreateReportRequest;
 import cl.municipalidad.bff.dto.ReportDTO;
+import cl.municipalidad.bff.dto.UpdateStatusRequest;
+import cl.municipalidad.bff.dto.UpdateTitleRequest;
+import cl.municipalidad.bff.service.ReportRequestHandler;
 import cl.municipalidad.bff.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,17 +12,32 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controlador de reportes del BFF.
- * Expone los endpoints REST para la gestion de reportes de incendios.
+ * Expone endpoints REST para la gestión de reportes de incendios.
+ * Delega transformación de records al handler y lógica de negocio al service.
  *
  * <p>Patrones aplicados:</p>
  * <ul>
- *   <li>Facade Pattern: delega toda la logica al ReportService</li>
- *   <li>Single Responsibility: solo gestiona endpoints de reportes</li>
+ *   <li>Facade Pattern: interfaz simplificada para cliente HTTP</li>
+ *   <li>Delegation Pattern: delega transformación y lógica</li>
+ *   <li>Single Responsibility: solo maneja endpoints HTTP</li>
  * </ul>
+ *
+ * <p>Flujo de responsabilidades:</p>
+ * <pre>{@code
+ * ReportController (HTTP)
+ *   ↓
+ * ReportRequestHandler (transforma records)
+ *   ↓
+ * ReportService (lógica de negocio + circuit breaker)
+ *   ↓
+ * ReportClient (llamadas a MS-Reportes)
+ * }</pre>
+ *
+ * <p><b>Documentación OpenAPI:</b> Ver /swagger-ui.html para ejemplos interactivos
+ * e integración con el openapi.yaml</p>
  *
  * @author Beltran
  * @version 1.0
@@ -30,11 +49,14 @@ import java.util.Map;
 public class ReportController {
 
     private final ReportService reportService;
+    private final ReportRequestHandler reportRequestHandler;
 
     /**
-     * Lista todos los reportes del sistema.
+     * Lista todos los reportes del sistema sin filtros.
      *
      * @return lista de ReportDTO con todos los reportes
+     *
+     * <p><b>OpenAPI:</b> GET /reportes - operationId: listAllReports</p>
      */
     @GetMapping
     public ResponseEntity<List<ReportDTO>> listAll() {
@@ -45,6 +67,8 @@ public class ReportController {
      * Lista solo los reportes con estado ACTIVO.
      *
      * @return lista de ReportDTO con reportes activos
+     *
+     * <p><b>OpenAPI:</b> GET /reportes/activos - operationId: listActiveReports</p>
      */
     @GetMapping("/activos")
     public ResponseEntity<List<ReportDTO>> listActive() {
@@ -52,10 +76,12 @@ public class ReportController {
     }
 
     /**
-     * Busca un reporte por su identificador.
+     * Busca un reporte por su identificador único.
      *
      * @param id identificador del reporte
      * @return ReportDTO con los datos del reporte
+     *
+     * <p><b>OpenAPI:</b> GET /reportes/{id} - operationId: getReportById</p>
      */
     @GetMapping("/{id}")
     public ResponseEntity<ReportDTO> findById(@PathVariable Long id) {
@@ -64,48 +90,94 @@ public class ReportController {
 
     /**
      * Crea un nuevo reporte de incendio.
+     * Delega transformación del record al handler que convierte a Map.
      *
-     * @param body mapa con los datos del reporte a crear
+     * @param request record con datos del reporte
      * @return ReportDTO con el reporte creado
+     *
+     * <p>Ejemplo de request:</p>
+     * <pre>{@code
+     * POST /api/reportes
+     * Content-Type: application/json
+     *
+     * {
+     *   "titulo": "Incendio en Cerro",
+     *   "descripcion": "Fuego activo en ladera norte",
+     *   "tipo": "INCENDIO",
+     *   "emailUsuario": "juan@example.com",
+     *   "latitud": -33.8688,
+     *   "longitud": -71.5203
+     * }
+     * }</pre>
+     *
+     * <p><b>OpenAPI:</b> POST /reportes - operationId: createReport</p>
      */
     @PostMapping
-    public ResponseEntity<ReportDTO> create(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.create(body));
+    public ResponseEntity<ReportDTO> create(@RequestBody CreateReportRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reportRequestHandler.handleCreate(request));
     }
 
     /**
      * Actualiza el estado de un reporte existente.
+     * Estados válidos: ACTIVO, RESUELTO, CERRADO.
      *
-     * @param id   identificador del reporte
-     * @param body mapa con el campo "estado"
+     * @param id identificador del reporte
+     * @param request record con el nuevo estado
      * @return ReportDTO con el reporte actualizado
+     *
+     * <p>Ejemplo de request:</p>
+     * <pre>{@code
+     * PUT /api/reportes/123/estado
+     * Content-Type: application/json
+     *
+     * {
+     *   "estado": "RESUELTO"
+     * }
+     * }</pre>
+     *
+     * <p><b>OpenAPI:</b> PUT /reportes/{id}/estado - operationId: updateReportStatus</p>
      */
     @PutMapping("/{id}/estado")
     public ResponseEntity<ReportDTO> updateStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(reportService.updateStatus(id, body.get("estado")));
+            @RequestBody UpdateStatusRequest request) {
+        return ResponseEntity.ok(reportRequestHandler.handleUpdateStatus(id, request));
     }
 
     /**
-     * Actualiza el titulo de un reporte existente.
+     * Actualiza el título de un reporte existente.
      *
-     * @param id   identificador del reporte
-     * @param body mapa con el campo "titulo"
+     * @param id identificador del reporte
+     * @param request record con el nuevo título
      * @return ReportDTO con el reporte actualizado
+     *
+     * <p>Ejemplo de request:</p>
+     * <pre>{@code
+     * PUT /api/reportes/123
+     * Content-Type: application/json
+     *
+     * {
+     *   "titulo": "Incendio Zona Crítica - ACTUALIZADO"
+     * }
+     * }</pre>
+     *
+     * <p><b>OpenAPI:</b> PUT /reportes/{id} - operationId: updateReportTitle</p>
      */
     @PutMapping("/{id}")
     public ResponseEntity<ReportDTO> updateTitle(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(reportService.updateTitle(id, body.get("titulo")));
+            @RequestBody UpdateTitleRequest request) {
+        return ResponseEntity.ok(reportRequestHandler.handleUpdateTitle(id, request));
     }
 
     /**
      * Elimina un reporte por su identificador.
      *
      * @param id identificador del reporte a eliminar
-     * @return respuesta sin contenido
+     * @return respuesta sin contenido (204 No Content)
+     *
+     * <p><b>OpenAPI:</b> DELETE /reportes/{id} - operationId: deleteReport</p>
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

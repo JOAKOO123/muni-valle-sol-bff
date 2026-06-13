@@ -1,6 +1,8 @@
 package cl.municipalidad.bff.controller;
 
 import cl.municipalidad.bff.dto.AlertDTO;
+import cl.municipalidad.bff.dto.CreateAlertRequest;
+import cl.municipalidad.bff.service.AlertRequestHandler;
 import cl.municipalidad.bff.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,17 +10,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controlador de alertas del BFF.
- * Expone los endpoints REST para la gestion de alertas derivadas de reportes.
+ * Expone endpoints REST para la gestión de alertas derivadas de reportes.
+ * Delega toda validación y transformación al handler, y lógica de negocio al service.
  *
  * <p>Patrones aplicados:</p>
  * <ul>
- *   <li>Facade Pattern: delega toda la logica al AlertService</li>
- *   <li>Single Responsibility: solo gestiona endpoints de alertas</li>
+ *   <li>Facade Pattern: interfaz simplificada para cliente HTTP</li>
+ *   <li>Delegation Pattern: delega validación al handler y lógica al service</li>
+ *   <li>Single Responsibility: solo maneja endpoints HTTP</li>
  * </ul>
+ *
+ * <p>Responsabilidades separadas:</p>
+ * <pre>{@code
+ * AlertController
+ *   ↓ solo recibe y responde HTTP
+ * AlertRequestHandler
+ *   ↓ valida y transforma CreateAlertRequest
+ * AlertService
+ *   ↓ implementa lógica de negocio
+ * }</pre>
+ *
+ * <p><b>Documentación OpenAPI:</b> Ver /swagger-ui.html para ejemplos interactivos
+ * e integración con el openapi.yaml</p>
  *
  * @author Beltran
  * @version 1.0
@@ -30,11 +46,27 @@ import java.util.Map;
 public class AlertController {
 
     private final AlertService alertService;
+    private final AlertRequestHandler alertRequestHandler;
 
     /**
-     * Lista todas las alertas activas derivadas de reportes.
+     * Lista todas las alertas activas derivadas de reportes con estado ACTIVO.
      *
      * @return lista de AlertDTO con las alertas activas
+     *
+     * <p>Ejemplo de respuesta:</p>
+     * <pre>{@code
+     * [
+     *   {
+     *     "id": "a1b2c3d4",
+     *     "titulo": "Incendio Forestal",
+     *     "descripcion": "Fuego en cerro norte",
+     *     "severidad": "ALTA",
+     *     "fecha": "2026-06-13T14:30:00"
+     *   }
+     * ]
+     * }</pre>
+     *
+     * <p><b>OpenAPI:</b> GET /alertas - operationId: listAlerts</p>
      */
     @GetMapping
     public ResponseEntity<List<AlertDTO>> listAlerts() {
@@ -43,29 +75,39 @@ public class AlertController {
 
     /**
      * Crea una nueva alerta manual en el sistema.
-     * El body debe contener los campos "titulo", "descripcion" y "severidad".
-     * Severidades validas: ALTA, MEDIA, BAJA.
+     * Delega validación al handler que lanza IllegalArgumentException si falla.
      *
-     * @param body mapa con los campos "titulo", "descripcion" y "severidad"
-     * @return AlertDTO con la alerta creada, o 400 si faltan campos obligatorios
+     * @param request record con titulo, descripcion y severidad
+     * @return AlertDTO con la alerta creada, o 400 si validación falla
+     *
+     * <p>Ejemplo de request:</p>
+     * <pre>{@code
+     * POST /api/alertas
+     * Content-Type: application/json
+     *
+     * {
+     *   "titulo": "Alerta Manual",
+     *   "descripcion": "Situación crítica detectada",
+     *   "severidad": "ALTA"
+     * }
+     * }</pre>
+     *
+     * <p>Ejemplo de respuesta (201 Created):</p>
+     * <pre>{@code
+     * {
+     *   "id": "xyz789",
+     *   "titulo": "Alerta Manual",
+     *   "descripcion": "Situación crítica detectada",
+     *   "severidad": "ALTA",
+     *   "fecha": "2026-06-13T14:35:00"
+     * }
+     * }</pre>
+     *
+     * <p><b>OpenAPI:</b> POST /alertas - operationId: createAlert</p>
      */
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Map<String, String> body) {
-        String titulo      = body.get("titulo");
-        String descripcion = body.get("descripcion");
-        String severidad   = body.get("severidad");
-
-        if (titulo == null || titulo.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
-        }
-        if (descripcion == null || descripcion.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'descripcion' es obligatorio"));
-        }
-        if (severidad == null || (!severidad.equals("ALTA") && !severidad.equals("MEDIA") && !severidad.equals("BAJA"))) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'severidad' debe ser ALTA, MEDIA o BAJA"));
-        }
-
+    public ResponseEntity<AlertDTO> create(@RequestBody CreateAlertRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(alertService.create(titulo, descripcion, severidad));
+                .body(alertRequestHandler.handleCreate(request));
     }
 }
