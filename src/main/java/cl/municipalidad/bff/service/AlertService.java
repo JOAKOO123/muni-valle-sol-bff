@@ -1,5 +1,6 @@
 package cl.municipalidad.bff.service;
 
+import cl.municipalidad.bff.dto.AlertCreateRequestDto;
 import cl.municipalidad.bff.dto.AlertDTO;
 import cl.municipalidad.bff.dto.ReportDTO;
 import lombok.RequiredArgsConstructor;
@@ -51,12 +52,12 @@ public class AlertService {
      * @param severity    severidad de la alerta: ALTA, MEDIA o BAJA
      * @return AlertDTO con la alerta creada
      */
-    public AlertDTO create(String title, String description, String severity) {
+    public AlertDTO create(AlertCreateRequestDto body) {
         return new AlertDTO(
                 UUID.randomUUID().toString(),
-                title,
-                description,
-                severity,
+                body.title(),
+                body.description(),
+                body.severity(),
                 LocalDateTime.now()
         );
     }

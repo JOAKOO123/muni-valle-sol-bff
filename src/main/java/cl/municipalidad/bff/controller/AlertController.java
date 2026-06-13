@@ -1,10 +1,13 @@
 package cl.municipalidad.bff.controller;
 
+import cl.municipalidad.bff.dto.AlertCreateRequestDto;
 import cl.municipalidad.bff.dto.AlertDTO;
 import cl.municipalidad.bff.service.AlertService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,22 +53,8 @@ public class AlertController {
      * @return AlertDTO con la alerta creada, o 400 si faltan campos obligatorios
      */
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Map<String, String> body) {
-        String titulo      = body.get("titulo");
-        String descripcion = body.get("descripcion");
-        String severidad   = body.get("severidad");
-
-        if (titulo == null || titulo.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
-        }
-        if (descripcion == null || descripcion.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'descripcion' es obligatorio"));
-        }
-        if (severidad == null || (!severidad.equals("ALTA") && !severidad.equals("MEDIA") && !severidad.equals("BAJA"))) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El campo 'severidad' debe ser ALTA, MEDIA o BAJA"));
-        }
-
+    public ResponseEntity<?> create(@Valid @RequestBody AlertCreateRequestDto body) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(alertService.create(titulo, descripcion, severidad));
+                .body(alertService.create(body));
     }
 }

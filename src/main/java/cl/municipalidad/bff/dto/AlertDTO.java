@@ -17,7 +17,7 @@ public record AlertDTO(
     /** Descripcion detallada de la situacion. */
     String descripcion,
     /** Nivel de severidad (ej: BAJA, MEDIA, ALTA, CRITICA). */
-    String severidad,
+    SeverityDto severidad,
     /** Fecha y hora de creacion de la alerta. */
     LocalDateTime fecha
 ) {}
