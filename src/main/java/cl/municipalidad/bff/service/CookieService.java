@@ -16,8 +16,14 @@ import org.springframework.stereotype.Service;
  *   <li>Singleton: bean de Spring con instancia unica</li>
  * </ul>
  *
+ * <p><b>Nota sobre {@code secure}:</b> el atributo {@code Secure} de la cookie
+ * obliga al navegador a enviarla solo por HTTPS. En desarrollo local (HTTP)
+ * esto bloquea silenciosamente la cookie y produce 401 en endpoints protegidos.
+ * Por eso es configurable: {@code false} en local, {@code true} en producción
+ * (donde el tráfico siempre es HTTPS).</p>
+ *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @Service
@@ -29,6 +35,9 @@ public class CookieService {
 
     @Value("${jwt.cookie.maxage}")
     private int cookieMaxAge;
+
+    @Value("${jwt.cookie.secure:false}")
+    private boolean cookieSecure;
 
     /**
      * Establece la cookie HttpOnly con el token JWT en la respuesta.
@@ -54,6 +63,10 @@ public class CookieService {
     /**
      * Construye una cookie con los atributos de seguridad correctos.
      *
+     * <p>{@code secure} se lee desde {@code jwt.cookie.secure}: {@code false}
+     * por defecto (desarrollo local con HTTP), {@code true} en producción
+     * vía variable de entorno (HTTPS real).</p>
+     *
      * @param value  valor de la cookie
      * @param maxAge tiempo de vida en segundos
      * @return ResponseCookie configurada
@@ -61,8 +74,8 @@ public class CookieService {
     private ResponseCookie buildCookie(String value, int maxAge) {
         return ResponseCookie.from(cookieName, value)
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
+                .secure(cookieSecure)
+                .sameSite(cookieSecure ? "Strict" : "Lax")
                 .path("/")
                 .maxAge(maxAge)
                 .build();

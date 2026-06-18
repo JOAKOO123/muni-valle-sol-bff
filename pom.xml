@@ -22,17 +22,7 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2023.0.4</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	
 	<dependencies>
 		<!-- Springdoc OpenAPI (genera/serves spec y Swagger UI) -->
 		<dependency>
@@ -76,33 +66,26 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- JSON Web Token (JJWT) -->
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-		</dependency>
+	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-	</dependencies>
+
+		<!-- Nimbus JOSE+JWT: para validar tokens RSA contra el JWKS de MS-Usuarios -->
+		<dependency>
+    		<groupId>com.nimbusds</groupId>
+   			<artifactId>nimbus-jose-jwt</artifactId>
+    		<version>9.37.3</version>
+		</dependency>
+
+		<!-- Resilience4j standalone (sin Spring Cloud) para Circuit Breaker -->
+		<dependency>
+    		<groupId>io.github.resilience4j</groupId>
+    		<artifactId>resilience4j-spring-boot3</artifactId>
+    		<version>2.2.0</version>
+		</dependency>
+		</dependencies>
 
 	<build>
 		<plugins>
