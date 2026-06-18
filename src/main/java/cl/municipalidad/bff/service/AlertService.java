@@ -1,17 +1,16 @@
 package cl.municipalidad.bff.service;
 
+import cl.municipalidad.bff.client.AlertClient;
 import cl.municipalidad.bff.dto.AlertDTO;
-import cl.municipalidad.bff.dto.ReportDTO;
+import cl.municipalidad.bff.dto.AlertMsResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Servicio de alertas del BFF.
- * Genera alertas a partir de reportes activos y permite crear alertas manuales.
+ * Delega al MS-Alertas real via AlertClient y mapea la respuesta al AlertDTO del BFF.
  *
  * <p>Patrones aplicados:</p>
  * <ul>
@@ -20,67 +19,88 @@ import java.util.UUID;
  * </ul>
  *
  * @author Beltran
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 @Service
 @RequiredArgsConstructor
 public class AlertService {
 
-    private final ReportService reportService;
+    private final AlertClient alertClient;
 
     /**
-     * Lista todas las alertas activas derivadas de reportes con estado ACTIVO.
-     * Convierte cada reporte activo en una alerta con severidad calculada segun su tipo.
+     * Lista todas las alertas activas del MS-Alertas.
+     * Mapea los campos en inglés del ms a los campos en español del BFF.
      *
      * @return lista de AlertDTO con las alertas activas
      */
     public List<AlertDTO> listAlerts() {
-        return reportService.listAll()
+        return alertClient.listActive()
                 .stream()
-                .filter(report -> "ACTIVO".equals(report.estado()))
                 .map(this::toAlertDTO)
                 .toList();
     }
 
     /**
-     * Crea una nueva alerta manual con los datos proporcionados.
+     * Crea una nueva alerta en el MS-Alertas.
+     * Convierte la severidad del español (ALTA/MEDIA/BAJA) al inglés del ms (HIGH/MEDIUM/LOW).
      *
      * @param title       titulo de la alerta
      * @param description descripcion de la alerta
-     * @param severity    severidad de la alerta: ALTA, MEDIA o BAJA
+     * @param severity    severidad en español: ALTA, MEDIA o BAJA
      * @return AlertDTO con la alerta creada
      */
     public AlertDTO create(String title, String description, String severity) {
+        AlertMsResponseDTO created = alertClient.create(title, description, toEnglishSeverity(severity));
+        return toAlertDTO(created);
+    }
+
+    /**
+     * Mapea un AlertMsResponseDTO al AlertDTO del BFF.
+     * Convierte severity del inglés al español y date a fecha del DTO.
+     *
+     * @param ms respuesta del MS-Alertas
+     * @return AlertDTO con campos en español para el frontend
+     */
+    private AlertDTO toAlertDTO(AlertMsResponseDTO ms) {
         return new AlertDTO(
-                UUID.randomUUID().toString(),
-                title,
-                description,
-                severity,
-                LocalDateTime.now()
+                ms.id(),
+                ms.title(),
+                ms.description(),
+                toSpanishSeverity(ms.severity()),
+                ms.date()
         );
     }
 
     /**
-     * Convierte un ReportDTO en un AlertDTO asignando severidad segun el tipo de reporte.
-     * INCENDIO → ALTA, HUMO → MEDIA, SOSPECHOSO → BAJA, cualquier otro tipo → MEDIA.
+     * Convierte severidad del inglés (MS-Alertas) al español (BFF/Frontend).
+     * HIGH → ALTA, MEDIUM → MEDIA, LOW → BAJA.
      *
-     * @param report ReportDTO a convertir
-     * @return AlertDTO con severidad calculada
+     * @param severity severidad en inglés
+     * @return severidad en español
      */
-    private AlertDTO toAlertDTO(ReportDTO report) {
-        String severity = switch (report.tipo()) {
-            case "INCENDIO"   -> "ALTA";
-            case "HUMO"       -> "MEDIA";
-            case "SOSPECHOSO" -> "BAJA";
-            default           -> "MEDIA";
+    private String toSpanishSeverity(String severity) {
+        return switch (severity) {
+            case "HIGH"   -> "ALTA";
+            case "MEDIUM" -> "MEDIA";
+            case "LOW"    -> "BAJA";
+            default       -> severity;
         };
-        return new AlertDTO(
-                report.id().toString(),
-                report.titulo(),
-                report.descripcion(),
-                severity,
-                report.fechaCreacion()
-        );
+    }
+
+    /**
+     * Convierte severidad del español (Frontend) al inglés (MS-Alertas).
+     * ALTA → HIGH, MEDIA → MEDIUM, BAJA → LOW.
+     *
+     * @param severity severidad en español
+     * @return severidad en inglés
+     */
+    private String toEnglishSeverity(String severity) {
+        return switch (severity) {
+            case "ALTA"  -> "HIGH";
+            case "MEDIA" -> "MEDIUM";
+            case "BAJA"  -> "LOW";
+            default      -> severity;
+        };
     }
 }
