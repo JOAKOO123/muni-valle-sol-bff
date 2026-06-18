@@ -24,19 +24,18 @@
 	</properties>
 	
 	<dependencies>
-		<!-- Springdoc OpenAPI (genera/serves spec y Swagger UI) -->
 		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
-		</dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>3.0.3</version>
+</dependency>
 
-		<!-- Springdoc common helpers (JSON Schema, extensions) -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-common</artifactId>
-			<version>2.3.0</version>
-		</dependency>
+<!-- Springdoc common helpers (JSON Schema, extensions) -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-common</artifactId>
+    <version>3.0.3</version>
+</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
