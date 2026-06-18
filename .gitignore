@@ -46,6 +46,7 @@ secrets/
 
 # Local application properties
 src\main\resources\application.properties
+application.properties
 
 # Env files
 *.env
