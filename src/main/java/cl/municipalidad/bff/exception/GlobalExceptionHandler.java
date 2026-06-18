@@ -2,11 +2,13 @@ package cl.municipalidad.bff.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Manejador global de excepciones del BFF.
@@ -19,11 +21,38 @@ import java.util.Map;
  * </ul>
  *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Maneja errores de validacion de campos ({@code @Valid}).
+     *
+     * <p>Se activa cuando un DTO de entrada (CreateBrigadaRequest, CreateReportRequest,
+     * etc.) no pasa las validaciones de Jakarta Bean Validation. Sin este handler,
+     * Spring devuelve su formato por defecto con el stack trace completo expuesto.</p>
+     *
+     * @param ex Excepcion con el detalle de que campos fallaron.
+     * @return HTTP 400 con un mensaje limpio por cada campo invalido.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        String mensaje = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            Map.of(
+                "error", mensaje,
+                "timestamp", LocalDateTime.now().toString(),
+                "status", 400
+            )
+        );
+    }
 
     /**
      * Maneja excepciones de microservicios con status HTTP especifico.

@@ -108,7 +108,7 @@ public class AuthController {
         TokenResponseDTO tokenResponse = authService.login(request);
         UserDTO user = authService.getUser(request.email());
 
-        cookieService.setAuthCookie(response, tokenResponse.token());
+        cookieService.setAuthCookie(response, tokenResponse.accessToken());
 
         return ResponseEntity.ok(new LoginResponseDTO(
                 user.id(),
