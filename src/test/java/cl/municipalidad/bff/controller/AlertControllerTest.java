@@ -2,6 +2,7 @@ package cl.municipalidad.bff.controller;
 
 import cl.municipalidad.bff.dto.AlertDTO;
 import cl.municipalidad.bff.dto.CreateAlertRequest;
+import cl.municipalidad.bff.exception.GlobalExceptionHandler;
 import cl.municipalidad.bff.service.AlertRequestHandler;
 import cl.municipalidad.bff.service.AlertService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +48,12 @@ class AlertControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(alertController).build();
+        // Se registra el GlobalExceptionHandler junto al controller para que
+        // las excepciones lanzadas por el handler (IllegalArgumentException)
+        // se traduzcan a respuestas HTTP reales, igual que en producción.
+        mockMvc = MockMvcBuilders.standaloneSetup(alertController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
@@ -132,7 +138,8 @@ class AlertControllerTest {
         mockMvc.perform(post("/api/alertas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("El campo 'titulo' es obligatorio"));
     }
 
     @Test
@@ -149,6 +156,7 @@ class AlertControllerTest {
         mockMvc.perform(post("/api/alertas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("El campo 'severidad' debe ser ALTA, MEDIA o BAJA"));
     }
 }

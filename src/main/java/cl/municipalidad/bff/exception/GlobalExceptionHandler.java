@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @author Beltran
- * @version 1.1
+ * @version 1.2
  * @since 1.0
  */
 @RestControllerAdvice
@@ -48,6 +48,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             Map.of(
                 "error", mensaje,
+                "timestamp", LocalDateTime.now().toString(),
+                "status", 400
+            )
+        );
+    }
+
+    /**
+     * Maneja errores de validacion manual lanzados con IllegalArgumentException.
+     *
+     * <p>Se activa, por ejemplo, en AlertRequestHandler cuando un campo obligatorio
+     * (titulo, severidad) falta o tiene un valor invalido. Debe declararse ANTES
+     * del handler de RuntimeException, ya que IllegalArgumentException es una
+     * subclase de RuntimeException y Spring prioriza el tipo mas especifico, pero
+     * declarar el orden explicito evita ambiguedad y deja la intencion clara.</p>
+     *
+     * @param ex Excepcion con el mensaje descriptivo del campo invalido.
+     * @return HTTP 400 con el mensaje de validacion.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            Map.of(
+                "error", ex.getMessage(),
                 "timestamp", LocalDateTime.now().toString(),
                 "status", 400
             )
