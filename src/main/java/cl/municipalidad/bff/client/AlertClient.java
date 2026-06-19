@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ import java.util.Map;
  * </ul>
  *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @Component
@@ -52,19 +53,24 @@ public class AlertClient {
 
     /**
      * Crea una nueva alerta en el MS-Alertas.
+     * Incluye coordenadas geograficas si fueron proporcionadas.
      *
      * @param title       titulo de la alerta
      * @param description descripcion de la alerta
      * @param severity    severidad: HIGH, MEDIUM o LOW
+     * @param latitude    latitud del incidente, puede ser null
+     * @param longitude   longitud del incidente, puede ser null
      * @return AlertMsResponseDTO con la alerta creada
      * @throws MsException si los datos son invalidos (400)
      */
-    public AlertMsResponseDTO create(String title, String description, String severity) {
-        Map<String, Object> body = Map.of(
-                "title", title,
-                "description", description,
-                "severity", severity
-        );
+    public AlertMsResponseDTO create(String title, String description, String severity, Double latitude, Double longitude) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("title", title);
+        body.put("description", description);
+        body.put("severity", severity);
+        if (latitude != null) body.put("latitude", latitude);
+        if (longitude != null) body.put("longitude", longitude);
+
         return msAlertasClient.post()
                 .uri("/api/alerts")
                 .bodyValue(body)

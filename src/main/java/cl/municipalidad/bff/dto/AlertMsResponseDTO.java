@@ -3,20 +3,23 @@ package cl.municipalidad.bff.dto;
 import java.time.LocalDateTime;
 
 /**
- * DTO que mapea la respuesta del MS-Alertas.
- * Los campos siguen la nomenclatura en inglés del microservicio (AlertResponseDTO del ms).
+ * DTO que representa la respuesta cruda del MS-Alertas, en inglés.
+ * Campos en inglés porque refleja directamente el contrato del microservicio.
+ * El BFF lo recibe y lo transforma al AlertDTO en español para el frontend.
  *
- * @param id          Identificador unico generado por MongoDB.
- * @param title       Titulo descriptivo de la alerta.
- * @param description Descripcion detallada del evento.
+ * @param id          Identificador único de la alerta en MongoDB.
+ * @param title       Título de la alerta.
+ * @param description Descripción detallada.
  * @param severity    Nivel de severidad: HIGH, MEDIUM o LOW.
- * @param status      Estado actual: ACTIVE o RESOLVED.
- * @param date        Fecha y hora de creacion.
+ * @param status      Estado de la alerta: ACTIVE o RESOLVED.
+ * @param date        Fecha de creación.
  * @param reportId    Id del reporte asociado. Puede ser null.
  * @param userId      Id del usuario relacionado. Puede ser null.
+ * @param latitude    Latitud del incidente. Puede ser null.
+ * @param longitude   Longitud del incidente. Puede ser null.
  *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public record AlertMsResponseDTO(
@@ -27,5 +30,7 @@ public record AlertMsResponseDTO(
     String status,
     LocalDateTime date,
     Long reportId,
-    Long userId
+    Long userId,
+    Double latitude,
+    Double longitude
 ) {}

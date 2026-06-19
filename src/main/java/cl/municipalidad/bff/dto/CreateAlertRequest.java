@@ -15,20 +15,26 @@ package cl.municipalidad.bff.dto;
  * CreateAlertRequest request = new CreateAlertRequest(
  *     "Incendio Forestal",
  *     "Se detectó incendio en zona norte",
- *     "ALTA"
+ *     "ALTA",
+ *     -33.4569,
+ *     -70.6483
  * );
  * }</pre>
  *
- * @param titulo titulo descriptivo de la alerta (obligatorio)
+ * @param titulo      titulo descriptivo de la alerta (obligatorio)
  * @param descripcion descripcion detallada de la situacion (obligatorio)
- * @param severidad nivel de severidad: ALTA, MEDIA o BAJA (obligatorio)
+ * @param severidad   nivel de severidad: ALTA, MEDIA o BAJA (obligatorio)
+ * @param latitud     latitud geografica del incidente (opcional)
+ * @param longitud    longitud geografica del incidente (opcional)
  *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public record CreateAlertRequest(
     String titulo,
     String descripcion,
-    String severidad
+    String severidad,
+    Double latitud,
+    Double longitud
 ) {}

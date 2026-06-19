@@ -19,7 +19,7 @@ import java.util.List;
  * </ul>
  *
  * @author Beltran
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 @Service
@@ -48,10 +48,12 @@ public class AlertService {
      * @param title       titulo de la alerta
      * @param description descripcion de la alerta
      * @param severity    severidad en español: ALTA, MEDIA o BAJA
+     * @param latitude    latitud del incidente, puede ser null
+     * @param longitude   longitud del incidente, puede ser null
      * @return AlertDTO con la alerta creada
      */
-    public AlertDTO create(String title, String description, String severity) {
-        AlertMsResponseDTO created = alertClient.create(title, description, toEnglishSeverity(severity));
+    public AlertDTO create(String title, String description, String severity, Double latitude, Double longitude) {
+        AlertMsResponseDTO created = alertClient.create(title, description, toEnglishSeverity(severity), latitude, longitude);
         return toAlertDTO(created);
     }
 
@@ -68,7 +70,9 @@ public class AlertService {
                 ms.title(),
                 ms.description(),
                 toSpanishSeverity(ms.severity()),
-                ms.date()
+                ms.date(),
+                ms.latitude(),
+                ms.longitude()
         );
     }
 

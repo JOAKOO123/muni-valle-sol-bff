@@ -1,9 +1,11 @@
 package cl.municipalidad.bff.controller;
 
+import cl.municipalidad.bff.dto.AlertDTO;
 import cl.municipalidad.bff.dto.CreateReportRequest;
 import cl.municipalidad.bff.dto.ReportDTO;
 import cl.municipalidad.bff.dto.UpdateStatusRequest;
 import cl.municipalidad.bff.dto.UpdateTitleRequest;
+import cl.municipalidad.bff.service.AlertService;
 import cl.municipalidad.bff.service.ReportRequestHandler;
 import cl.municipalidad.bff.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,7 @@ import java.util.List;
  * e integración con el openapi.yaml</p>
  *
  * @author Beltran
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @RestController
@@ -50,6 +52,7 @@ public class ReportController {
 
     private final ReportService reportService;
     private final ReportRequestHandler reportRequestHandler;
+    private final AlertService alertService;
 
     /**
      * Lista todos los reportes del sistema sin filtros.
@@ -122,19 +125,9 @@ public class ReportController {
      * Actualiza el estado de un reporte existente.
      * Estados válidos: ACTIVO, RESUELTO, CERRADO.
      *
-     * @param id identificador del reporte
+     * @param id      identificador del reporte
      * @param request record con el nuevo estado
      * @return ReportDTO con el reporte actualizado
-     *
-     * <p>Ejemplo de request:</p>
-     * <pre>{@code
-     * PUT /api/reportes/123/estado
-     * Content-Type: application/json
-     *
-     * {
-     *   "estado": "RESUELTO"
-     * }
-     * }</pre>
      *
      * <p><b>OpenAPI:</b> PUT /reportes/{id}/estado - operationId: updateReportStatus</p>
      */
@@ -148,19 +141,9 @@ public class ReportController {
     /**
      * Actualiza el título de un reporte existente.
      *
-     * @param id identificador del reporte
+     * @param id      identificador del reporte
      * @param request record con el nuevo título
      * @return ReportDTO con el reporte actualizado
-     *
-     * <p>Ejemplo de request:</p>
-     * <pre>{@code
-     * PUT /api/reportes/123
-     * Content-Type: application/json
-     *
-     * {
-     *   "titulo": "Incendio Zona Crítica - ACTUALIZADO"
-     * }
-     * }</pre>
      *
      * <p><b>OpenAPI:</b> PUT /reportes/{id} - operationId: updateReportTitle</p>
      */
@@ -183,5 +166,37 @@ public class ReportController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reportService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Emite una alerta en el MS-Alertas a partir de un reporte existente.
+     * Obtiene los datos del reporte y los convierte en una alerta con severidad
+     * determinada por el tipo de incidente: INCENDIO → ALTA, HUMO → MEDIA, SOSPECHOSO → BAJA.
+     *
+     * @param id identificador del reporte a convertir en alerta
+     * @return AlertDTO con la alerta creada
+     *
+     * <p><b>OpenAPI:</b> POST /reportes/{id}/emitir-alerta - operationId: emitirAlertaDesdeReporte</p>
+     */
+    @PostMapping("/{id}/emitir-alerta")
+    public ResponseEntity<AlertDTO> emitirAlerta(@PathVariable Long id) {
+        ReportDTO reporte = reportService.findById(id);
+        String severidad = switch (reporte.tipo()) {
+            case "INCENDIO"    -> "ALTA";
+            case "HUMO"        -> "MEDIA";
+            case "SOSPECHOSO"  -> "BAJA";
+            default            -> "MEDIA";
+        };
+        Double latitud  = reporte.ubicacion() != null ? reporte.ubicacion().lat()  : null;
+        Double longitud = reporte.ubicacion() != null ? reporte.ubicacion().lng() : null;
+
+        AlertDTO alerta = alertService.create(
+                reporte.titulo(),
+                reporte.descripcion(),
+                severidad,
+                latitud,
+                longitud
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(alerta);
     }
 }
