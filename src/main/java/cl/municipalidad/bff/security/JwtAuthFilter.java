@@ -32,16 +32,15 @@ import java.util.Set;
  *       no puede operar sobre brigadas ni alertas.</li>
  * </ul>
  *
- * <p>Se manejan dos niveles de protección distintos:</p>
+ * <p>Se manejan tres niveles de protección distintos:</p>
  * <ul>
- *   <li><b>Solo autenticación</b> ({@code /api/reportes/**}): exige un token
- *       válido de cualquier rol (ADMIN, FUNCIONARIO o CIUDADANO). Cualquier
- *       persona registrada puede reportar una emergencia, pero quien no tiene
- *       cuenta no puede. Esto le da al rol CIUDADANO un propósito real: tener
- *       cuenta habilita el acceso a reportar.</li>
+ *   <li><b>Solo autenticación — cualquier rol</b> ({@code POST /api/reportes}):
+ *       cualquier usuario autenticado puede crear un reporte.</li>
+ *   <li><b>Solo autenticación — solo ADMIN</b> ({@code GET /api/reportes/**},
+ *       {@code PUT /api/reportes/**}, {@code DELETE /api/reportes/**}):
+ *       solo el ADMIN puede leer, editar o eliminar reportes.</li>
  *   <li><b>Autenticación + rol</b> ({@code /api/brigadas/**}, {@code /api/alertas/**}):
- *       exige además que el rol sea {@code ADMIN} o {@code FUNCIONARIO}, ya que
- *       es gestión interna municipal.</li>
+ *       exige además que el rol sea {@code ADMIN} o {@code FUNCIONARIO}.</li>
  * </ul>
  *
  * <p>Solo {@code /api/usuarios/register} y {@code /api/usuarios/login} quedan
@@ -52,11 +51,11 @@ import java.util.Set;
  * <ul>
  *   <li>{@code 401 Unauthorized} — no hay token, está vacío, o es inválido/expirado.</li>
  *   <li>{@code 403 Forbidden} — el token es válido pero el rol no alcanza para
- *       la ruta solicitada (aplica solo a brigadas/alertas).</li>
+ *       la ruta solicitada.</li>
  * </ul></p>
  *
  * @author Municipalidad Valle del Sol
- * @version 1.0
+ * @version 1.1
  * @see JwtService
  */
 @Slf4j
@@ -68,11 +67,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     /** Nombre de la cookie HttpOnly donde viaja el JWT, igual que en AuthController. */
     private static final String COOKIE_NAME = "access_token";
-
-    /** Prefijos de ruta que solo requieren un token válido (cualquier rol). */
-    private static final List<String> RUTAS_SOLO_AUTENTICACION = List.of(
-            "/api/reportes"
-    );
 
     /** Prefijos de ruta que requieren token válido Y rol autorizado. */
     private static final List<String> RUTAS_CON_ROL = List.of(
@@ -86,10 +80,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     /**
      * Intercepta cada request HTTP antes de llegar al controller.
      *
-     * <p>Si la ruta no requiere protección, deja pasar la request sin validar
-     * nada. Si requiere solo autenticación (reportes), exige token válido de
-     * cualquier rol. Si requiere autenticación y rol (brigadas, alertas),
-     * exige además que el rol sea ADMIN o FUNCIONARIO.</p>
+     * <p>Lógica de protección de reportes:</p>
+     * <ul>
+     *   <li>{@code POST /api/reportes}: cualquier usuario autenticado puede crear reportes.</li>
+     *   <li>Resto de {@code /api/reportes/**}: solo ADMIN.</li>
+     * </ul>
      *
      * @param request  Solicitud HTTP entrante.
      * @param response Respuesta HTTP saliente, usada para escribir el error si corresponde.
@@ -105,11 +100,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        String method = request.getMethod();
 
-        boolean requiereSoloAuth = RUTAS_SOLO_AUTENTICACION.stream().anyMatch(path::startsWith);
+        boolean esRutaReportes = path.startsWith("/api/reportes");
         boolean requiereRol = RUTAS_CON_ROL.stream().anyMatch(path::startsWith);
 
-        if (!requiereSoloAuth && !requiereRol) {
+        if (!esRutaReportes && !requiereRol) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -129,8 +125,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (requiereSoloAuth) {
-            // Reportes: cualquier rol autenticado puede continuar.
+        if (esRutaReportes) {
+            // POST /api/reportes: cualquier usuario autenticado puede crear un reporte.
+            if ("POST".equalsIgnoreCase(method) && "/api/reportes".equals(path)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            // GET, PUT, DELETE /api/reportes/**): solo ADMIN puede ver/editar/eliminar.
+            String rol = jwtService.extractRol(token);
+            if (!"ADMIN".equals(rol)) {
+                log.warn("Acceso denegado a reportes por rol insuficiente: email={}, rol={}, ruta={}", email, rol, path);
+                escribirError(response, HttpServletResponse.SC_FORBIDDEN,
+                        "No tiene permisos para acceder a este recurso. Se requiere rol ADMIN.");
+                return;
+            }
             filterChain.doFilter(request, response);
             return;
         }
