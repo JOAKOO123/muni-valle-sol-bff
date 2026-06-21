@@ -27,14 +27,13 @@ spec:
             - name: MS_REPORTES_URL
               value: "http://ms-reportes:8082"
             - name: MS_ALERTAS_URL
-              value: "http://ms-alertas:8083"
+              value: "http://ms-alertas:8083/api/v1"
+            - name: MS_BRIGADAS_URL
+              value: "http://ms-brigadas:8084"
             - name: CORS_ORIGINS
               value: "http://muni-frontend"
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: muni-secrets
-                  key: jwt-secret
+            - name: JWT_COOKIE_SECURE
+              value: "false"
           resources:
             requests:
               memory: "256Mi"
