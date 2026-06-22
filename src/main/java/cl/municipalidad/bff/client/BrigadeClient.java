@@ -1,6 +1,6 @@
 package cl.municipalidad.bff.client;
 
-import cl.municipalidad.bff.dto.BrigadaDTO;
+import cl.municipalidad.bff.dto.BrigadeDTO;
 import cl.municipalidad.bff.exception.MsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class BrigadaClient {
+public class BrigadeClient {
 
     @Qualifier("msBrigadasClient")
     private final WebClient msBrigadasClient;
@@ -37,14 +37,14 @@ public class BrigadaClient {
      * @return lista de BrigadaDTO con todas las brigadas
      * @throws MsException si ocurre un error interno en el MS-Brigadas (500)
      */
-    public List<BrigadaDTO> listAll() {
+    public List<BrigadeDTO> listAll() {
         return msBrigadasClient.get()
                 .uri("/api/brigadas")
                 .retrieve()
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Error al obtener brigadas", HttpStatus.INTERNAL_SERVER_ERROR)))
-                .bodyToFlux(BrigadaDTO.class)
+                .bodyToFlux(BrigadeDTO.class)
                 .collectList()
                 .block();
     }
@@ -55,14 +55,14 @@ public class BrigadaClient {
      * @return lista de BrigadaDTO disponibles
      * @throws MsException si ocurre un error interno en el MS-Brigadas (500)
      */
-    public List<BrigadaDTO> listDisponibles() {
+    public List<BrigadeDTO> listDisponibles() {
         return msBrigadasClient.get()
                 .uri("/api/brigadas/disponibles")
                 .retrieve()
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Error al obtener brigadas disponibles", HttpStatus.INTERNAL_SERVER_ERROR)))
-                .bodyToFlux(BrigadaDTO.class)
+                .bodyToFlux(BrigadeDTO.class)
                 .collectList()
                 .block();
     }
@@ -74,14 +74,14 @@ public class BrigadaClient {
      * @return lista de BrigadaDTO del tipo indicado
      * @throws MsException si ocurre un error interno en el MS-Brigadas (500)
      */
-    public List<BrigadaDTO> listByTipo(String tipo) {
+    public List<BrigadeDTO> listByTipo(String tipo) {
         return msBrigadasClient.get()
                 .uri("/api/brigadas/tipo/{tipo}", tipo)
                 .retrieve()
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Error al obtener brigadas por tipo", HttpStatus.INTERNAL_SERVER_ERROR)))
-                .bodyToFlux(BrigadaDTO.class)
+                .bodyToFlux(BrigadeDTO.class)
                 .collectList()
                 .block();
     }
@@ -93,14 +93,14 @@ public class BrigadaClient {
      * @return BrigadaDTO con los datos de la brigada
      * @throws MsException si la brigada no existe (404)
      */
-    public BrigadaDTO findById(Long id) {
+    public BrigadeDTO findById(Long id) {
         return msBrigadasClient.get()
                 .uri("/api/brigadas/{id}", id)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Brigada no encontrada", HttpStatus.NOT_FOUND)))
-                .bodyToMono(BrigadaDTO.class)
+                .bodyToMono(BrigadeDTO.class)
                 .block();
     }
 
@@ -111,7 +111,7 @@ public class BrigadaClient {
      * @return BrigadaDTO con la brigada creada
      * @throws MsException si los datos son invalidos (400)
      */
-    public BrigadaDTO create(Map<String, Object> body) {
+    public BrigadeDTO create(Map<String, Object> body) {
         return msBrigadasClient.post()
                 .uri("/api/brigadas")
                 .bodyValue(body)
@@ -119,7 +119,7 @@ public class BrigadaClient {
                 .onStatus(HttpStatus.BAD_REQUEST::equals,
                     response -> response.bodyToMono(String.class)
                         .map(b -> new MsException("Error al crear brigada", HttpStatus.BAD_REQUEST)))
-                .bodyToMono(BrigadaDTO.class)
+                .bodyToMono(BrigadeDTO.class)
                 .block();
     }
 
@@ -131,7 +131,7 @@ public class BrigadaClient {
      * @return BrigadaDTO con la brigada actualizada
      * @throws MsException si la brigada no existe (404)
      */
-    public BrigadaDTO updateEstado(Long id, String estado) {
+    public BrigadeDTO updateEstado(Long id, String estado) {
         return msBrigadasClient.put()
                 .uri("/api/brigadas/{id}/estado", id)
                 .bodyValue(Map.of("estado", estado))
@@ -139,7 +139,7 @@ public class BrigadaClient {
                 .onStatus(HttpStatus.NOT_FOUND::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Brigada no encontrada", HttpStatus.NOT_FOUND)))
-                .bodyToMono(BrigadaDTO.class)
+                .bodyToMono(BrigadeDTO.class)
                 .block();
     }
 
@@ -152,7 +152,7 @@ public class BrigadaClient {
      * @return BrigadaDTO con la brigada actualizada
      * @throws MsException si la brigada no existe (404)
      */
-    public BrigadaDTO updateUbicacion(Long id, Double latitud, Double longitud) {
+    public BrigadeDTO updateUbicacion(Long id, Double latitud, Double longitud) {
         return msBrigadasClient.put()
                 .uri("/api/brigadas/{id}/ubicacion", id)
                 .bodyValue(Map.of("latitud", latitud, "longitud", longitud))
@@ -160,7 +160,7 @@ public class BrigadaClient {
                 .onStatus(HttpStatus.NOT_FOUND::equals,
                     response -> response.bodyToMono(String.class)
                         .map(body -> new MsException("Brigada no encontrada", HttpStatus.NOT_FOUND)))
-                .bodyToMono(BrigadaDTO.class)
+                .bodyToMono(BrigadeDTO.class)
                 .block();
     }
 

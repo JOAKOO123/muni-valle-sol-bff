@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Pattern;
  * @author Municipalidad Valle del Sol
  * @version 1.0
  */
-public record UpdateBrigadaEstadoRequest(
+public record UpdateBrigadeStatusRequest(
 
     @NotBlank(message = "El estado es obligatorio")
     @Pattern(regexp = "DISPONIBLE|EN_CAMINO|OCUPADA|INACTIVA",

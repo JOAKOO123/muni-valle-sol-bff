@@ -1,10 +1,10 @@
 package cl.municipalidad.bff.controller;
 
-import cl.municipalidad.bff.dto.BrigadaDTO;
-import cl.municipalidad.bff.dto.CreateBrigadaRequest;
-import cl.municipalidad.bff.dto.UpdateBrigadaEstadoRequest;
-import cl.municipalidad.bff.dto.UpdateBrigadaUbicacionRequest;
-import cl.municipalidad.bff.service.BrigadaService;
+import cl.municipalidad.bff.dto.BrigadeDTO;
+import cl.municipalidad.bff.dto.CreateBrigadeRequest;
+import cl.municipalidad.bff.dto.UpdateBrigadeStatusRequest;
+import cl.municipalidad.bff.dto.UpdateBrigadeLocationRequest;
+import cl.municipalidad.bff.service.BrigadeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,9 +33,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/brigadas")
 @RequiredArgsConstructor
-public class BrigadaController {
+public class BrigadeController {
 
-    private final BrigadaService brigadaService;
+    private final BrigadeService brigadaService;
 
     /**
      * Lista todas las brigadas registradas en el sistema.
@@ -43,7 +43,7 @@ public class BrigadaController {
      * @return HTTP 200 con lista de BrigadaDTO
      */
     @GetMapping
-    public ResponseEntity<List<BrigadaDTO>> listAll() {
+    public ResponseEntity<List<BrigadeDTO>> listAll() {
         return ResponseEntity.ok(brigadaService.listAll());
     }
 
@@ -53,7 +53,7 @@ public class BrigadaController {
      * @return HTTP 200 con lista de BrigadaDTO disponibles
      */
     @GetMapping("/disponibles")
-    public ResponseEntity<List<BrigadaDTO>> listDisponibles() {
+    public ResponseEntity<List<BrigadeDTO>> listDisponibles() {
         return ResponseEntity.ok(brigadaService.listDisponibles());
     }
 
@@ -64,7 +64,7 @@ public class BrigadaController {
      * @return HTTP 200 con lista de BrigadaDTO del tipo indicado
      */
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<BrigadaDTO>> listByTipo(@PathVariable String tipo) {
+    public ResponseEntity<List<BrigadeDTO>> listByTipo(@PathVariable String tipo) {
         return ResponseEntity.ok(brigadaService.listByTipo(tipo));
     }
 
@@ -75,7 +75,7 @@ public class BrigadaController {
      * @return HTTP 200 con BrigadaDTO si existe, HTTP 404 si no
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BrigadaDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<BrigadeDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(brigadaService.findById(id));
     }
 
@@ -86,7 +86,7 @@ public class BrigadaController {
      * @return HTTP 201 con BrigadaDTO creada
      */
     @PostMapping
-    public ResponseEntity<BrigadaDTO> create(@Valid @RequestBody CreateBrigadaRequest request) {
+    public ResponseEntity<BrigadeDTO> create(@Valid @RequestBody CreateBrigadeRequest request) {
         Map<String, Object> body = Map.of(
             "nombre", request.nombre(),
             "tipo", request.tipo(),
@@ -105,9 +105,9 @@ public class BrigadaController {
      * @return HTTP 200 con BrigadaDTO actualizada
      */
     @PutMapping("/{id}/estado")
-    public ResponseEntity<BrigadaDTO> updateEstado(
+    public ResponseEntity<BrigadeDTO> updateEstado(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateBrigadaEstadoRequest request) {
+            @Valid @RequestBody UpdateBrigadeStatusRequest request) {
         return ResponseEntity.ok(brigadaService.updateEstado(id, request.estado()));
     }
 
@@ -119,9 +119,9 @@ public class BrigadaController {
      * @return HTTP 200 con BrigadaDTO actualizada
      */
     @PutMapping("/{id}/ubicacion")
-    public ResponseEntity<BrigadaDTO> updateUbicacion(
+    public ResponseEntity<BrigadeDTO> updateUbicacion(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateBrigadaUbicacionRequest request) {
+            @Valid @RequestBody UpdateBrigadeLocationRequest request) {
         return ResponseEntity.ok(brigadaService.updateUbicacion(id, request.latitud(), request.longitud()));
     }
 

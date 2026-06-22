@@ -1,6 +1,6 @@
 package cl.municipalidad.bff.controller;
 
-import cl.municipalidad.bff.dto.BrigadaDTO;
+import cl.municipalidad.bff.dto.BrigadeDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import cl.municipalidad.bff.service.BrigadaService;
+import cl.municipalidad.bff.service.BrigadeService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,19 +26,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BrigadaController - pruebas de integración web")
-class BrigadaControllerTest {
+class BrigadeControllerTest {
 
     @Mock
-    private BrigadaService brigadaService;
+    private BrigadeService brigadaService;
 
     @InjectMocks
-    private BrigadaController brigadaController;
+    private BrigadeController brigadaController;
 
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final BrigadaDTO mockBrigada = new BrigadaDTO(
+    private final BrigadeDTO mockBrigada = new BrigadeDTO(
             1L, "Brigada Norte", "DISPONIBLE", "INCENDIO",
             -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
 
@@ -143,7 +143,7 @@ class BrigadaControllerTest {
     @Test
     @DisplayName("PUT /api/brigadas/{id}/estado debería retornar 200 con el estado actualizado")
     void updateEstado_retorna200ConEstadoActualizado() throws Exception {
-        BrigadaDTO actualizada = new BrigadaDTO(
+        BrigadeDTO actualizada = new BrigadeDTO(
                 1L, "Brigada Norte", "EN_CAMINO", "INCENDIO",
                 -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
         when(brigadaService.updateEstado(eq(1L), eq("EN_CAMINO"))).thenReturn(actualizada);
@@ -162,7 +162,7 @@ class BrigadaControllerTest {
     @Test
     @DisplayName("PUT /api/brigadas/{id}/ubicacion debería retornar 200 con la ubicación actualizada")
     void updateUbicacion_retorna200ConUbicacionActualizada() throws Exception {
-        BrigadaDTO actualizada = new BrigadaDTO(
+        BrigadeDTO actualizada = new BrigadeDTO(
                 1L, "Brigada Norte", "DISPONIBLE", "INCENDIO",
                 -33.50, -70.60, "jefe@municipalidad.cl", LocalDateTime.now());
         when(brigadaService.updateUbicacion(eq(1L), eq(-33.50), eq(-70.60))).thenReturn(actualizada);
