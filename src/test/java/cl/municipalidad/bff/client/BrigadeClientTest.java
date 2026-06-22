@@ -1,6 +1,6 @@
 package cl.municipalidad.bff.client;
 
-import cl.municipalidad.bff.dto.BrigadaDTO;
+import cl.municipalidad.bff.dto.BrigadeDTO;
 import cl.municipalidad.bff.exception.MsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked", "rawtypes"})
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BrigadaClient - pruebas unitarias")
-class BrigadaClientTest {
+class BrigadeClientTest {
 
     @Mock
     private WebClient webClient;
@@ -50,15 +50,15 @@ class BrigadaClientTest {
     @Mock
     private WebClient.ResponseSpec responseSpec;
 
-    private BrigadaClient brigadaClient;
+    private BrigadeClient brigadaClient;
 
-    private final BrigadaDTO mockBrigada = new BrigadaDTO(
+    private final BrigadeDTO mockBrigada = new BrigadeDTO(
             1L, "Brigada Norte", "DISPONIBLE", "INCENDIO",
             -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
 
     @BeforeEach
     void setUp() {
-        brigadaClient = new BrigadaClient(webClient);
+        brigadaClient = new BrigadeClient(webClient);
     }
 
     @Test
@@ -68,9 +68,9 @@ class BrigadaClientTest {
         when(requestHeadersUriSpec.uri("/api/brigadas")).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.bodyToFlux(BrigadaDTO.class)).thenReturn(Flux.just(mockBrigada));
+        when(responseSpec.bodyToFlux(BrigadeDTO.class)).thenReturn(Flux.just(mockBrigada));
 
-        List<BrigadaDTO> resultado = brigadaClient.listAll();
+        List<BrigadeDTO> resultado = brigadaClient.listAll();
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).nombre()).isEqualTo("Brigada Norte");
@@ -83,9 +83,9 @@ class BrigadaClientTest {
         when(requestHeadersUriSpec.uri("/api/brigadas/{id}", 1L)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(BrigadaDTO.class)).thenReturn(Mono.just(mockBrigada));
+        when(responseSpec.bodyToMono(BrigadeDTO.class)).thenReturn(Mono.just(mockBrigada));
 
-        BrigadaDTO resultado = brigadaClient.findById(1L);
+        BrigadeDTO resultado = brigadaClient.findById(1L);
 
         assertThat(resultado.id()).isEqualTo(1L);
         assertThat(resultado.nombre()).isEqualTo("Brigada Norte");
@@ -98,7 +98,7 @@ class BrigadaClientTest {
         when(requestHeadersUriSpec.uri("/api/brigadas/{id}", 99L)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(BrigadaDTO.class))
+        when(responseSpec.bodyToMono(BrigadeDTO.class))
                 .thenReturn(Mono.error(new MsException("Brigada no encontrada", HttpStatus.NOT_FOUND)));
 
         assertThatThrownBy(() -> brigadaClient.findById(99L))
@@ -122,9 +122,9 @@ class BrigadaClientTest {
         when(requestBodySpec.bodyValue(body)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(BrigadaDTO.class)).thenReturn(Mono.just(mockBrigada));
+        when(responseSpec.bodyToMono(BrigadeDTO.class)).thenReturn(Mono.just(mockBrigada));
 
-        BrigadaDTO resultado = brigadaClient.create(body);
+        BrigadeDTO resultado = brigadaClient.create(body);
 
         assertThat(resultado.nombre()).isEqualTo("Brigada Norte");
     }
@@ -132,7 +132,7 @@ class BrigadaClientTest {
     @Test
     @DisplayName("updateEstado() debería enviar el nuevo estado y retornar la brigada actualizada")
     void updateEstado_enviaEstadoYRetornaBrigadaActualizada() {
-        BrigadaDTO actualizada = new BrigadaDTO(
+        BrigadeDTO actualizada = new BrigadeDTO(
                 1L, "Brigada Norte", "EN_CAMINO", "INCENDIO",
                 -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
 
@@ -141,9 +141,9 @@ class BrigadaClientTest {
         when(requestBodySpec.bodyValue(Map.of("estado", "EN_CAMINO"))).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(BrigadaDTO.class)).thenReturn(Mono.just(actualizada));
+        when(responseSpec.bodyToMono(BrigadeDTO.class)).thenReturn(Mono.just(actualizada));
 
-        BrigadaDTO resultado = brigadaClient.updateEstado(1L, "EN_CAMINO");
+        BrigadeDTO resultado = brigadaClient.updateEstado(1L, "EN_CAMINO");
 
         assertThat(resultado.estado()).isEqualTo("EN_CAMINO");
     }

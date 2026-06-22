@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * @author Municipalidad Valle del Sol
  * @version 1.0
  */
-public record BrigadaDTO(
+public record BrigadeDTO(
     Long id,
     String nombre,
     String estado,

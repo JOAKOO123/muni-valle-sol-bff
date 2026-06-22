@@ -1,7 +1,7 @@
 package cl.municipalidad.bff.service;
 
-import cl.municipalidad.bff.client.BrigadaClient;
-import cl.municipalidad.bff.dto.BrigadaDTO;
+import cl.municipalidad.bff.client.BrigadeClient;
+import cl.municipalidad.bff.dto.BrigadeDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,15 +18,15 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BrigadaService - pruebas unitarias")
-class BrigadaServiceTest {
+class BrigadeServiceTest {
 
     @Mock
-    private BrigadaClient brigadaClient;
+    private BrigadeClient brigadaClient;
 
     @InjectMocks
-    private BrigadaService brigadaService;
+    private BrigadeService brigadaService;
 
-    private final BrigadaDTO mockBrigada = new BrigadaDTO(
+    private final BrigadeDTO mockBrigada = new BrigadeDTO(
             1L, "Brigada Norte", "DISPONIBLE", "INCENDIO",
             -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
 
@@ -35,7 +35,7 @@ class BrigadaServiceTest {
     void listAll_delegaEnClienteYRetornaLista() {
         when(brigadaClient.listAll()).thenReturn(List.of(mockBrigada));
 
-        List<BrigadaDTO> resultado = brigadaService.listAll();
+        List<BrigadeDTO> resultado = brigadaService.listAll();
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).nombre()).isEqualTo("Brigada Norte");
@@ -47,7 +47,7 @@ class BrigadaServiceTest {
     void listDisponibles_delegaEnClienteYRetornaLista() {
         when(brigadaClient.listDisponibles()).thenReturn(List.of(mockBrigada));
 
-        List<BrigadaDTO> resultado = brigadaService.listDisponibles();
+        List<BrigadeDTO> resultado = brigadaService.listDisponibles();
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).estado()).isEqualTo("DISPONIBLE");
@@ -59,7 +59,7 @@ class BrigadaServiceTest {
     void listByTipo_delegaEnClienteConTipoCorrecto() {
         when(brigadaClient.listByTipo("INCENDIO")).thenReturn(List.of(mockBrigada));
 
-        List<BrigadaDTO> resultado = brigadaService.listByTipo("INCENDIO");
+        List<BrigadeDTO> resultado = brigadaService.listByTipo("INCENDIO");
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).tipo()).isEqualTo("INCENDIO");
@@ -71,7 +71,7 @@ class BrigadaServiceTest {
     void findById_delegaEnClienteYRetornaBrigada() {
         when(brigadaClient.findById(1L)).thenReturn(mockBrigada);
 
-        BrigadaDTO resultado = brigadaService.findById(1L);
+        BrigadeDTO resultado = brigadaService.findById(1L);
 
         assertThat(resultado.id()).isEqualTo(1L);
         assertThat(resultado.nombre()).isEqualTo("Brigada Norte");
@@ -90,7 +90,7 @@ class BrigadaServiceTest {
         );
         when(brigadaClient.create(body)).thenReturn(mockBrigada);
 
-        BrigadaDTO resultado = brigadaService.create(body);
+        BrigadeDTO resultado = brigadaService.create(body);
 
         assertThat(resultado.nombre()).isEqualTo("Brigada Norte");
         verify(brigadaClient).create(body);
@@ -99,12 +99,12 @@ class BrigadaServiceTest {
     @Test
     @DisplayName("updateEstado() debería delegar en BrigadaClient con id y estado correctos")
     void updateEstado_delegaEnClienteConIdYEstado() {
-        BrigadaDTO actualizada = new BrigadaDTO(
+        BrigadeDTO actualizada = new BrigadeDTO(
                 1L, "Brigada Norte", "EN_CAMINO", "INCENDIO",
                 -33.45, -70.65, "jefe@municipalidad.cl", LocalDateTime.now());
         when(brigadaClient.updateEstado(1L, "EN_CAMINO")).thenReturn(actualizada);
 
-        BrigadaDTO resultado = brigadaService.updateEstado(1L, "EN_CAMINO");
+        BrigadeDTO resultado = brigadaService.updateEstado(1L, "EN_CAMINO");
 
         assertThat(resultado.estado()).isEqualTo("EN_CAMINO");
         verify(brigadaClient).updateEstado(1L, "EN_CAMINO");
@@ -113,12 +113,12 @@ class BrigadaServiceTest {
     @Test
     @DisplayName("updateUbicacion() debería delegar en BrigadaClient con id y coordenadas correctas")
     void updateUbicacion_delegaEnClienteConCoordenadas() {
-        BrigadaDTO actualizada = new BrigadaDTO(
+        BrigadeDTO actualizada = new BrigadeDTO(
                 1L, "Brigada Norte", "DISPONIBLE", "INCENDIO",
                 -33.50, -70.60, "jefe@municipalidad.cl", LocalDateTime.now());
         when(brigadaClient.updateUbicacion(1L, -33.50, -70.60)).thenReturn(actualizada);
 
-        BrigadaDTO resultado = brigadaService.updateUbicacion(1L, -33.50, -70.60);
+        BrigadeDTO resultado = brigadaService.updateUbicacion(1L, -33.50, -70.60);
 
         assertThat(resultado.latitud()).isEqualTo(-33.50);
         assertThat(resultado.longitud()).isEqualTo(-70.60);

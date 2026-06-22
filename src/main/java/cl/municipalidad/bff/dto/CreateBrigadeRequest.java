@@ -15,7 +15,7 @@ import jakarta.validation.constraints.*;
  * @author Municipalidad Valle del Sol
  * @version 1.0
  */
-public record CreateBrigadaRequest(
+public record CreateBrigadeRequest(
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")

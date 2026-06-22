@@ -1,7 +1,7 @@
 package cl.municipalidad.bff.service;
 
-import cl.municipalidad.bff.client.BrigadaClient;
-import cl.municipalidad.bff.dto.BrigadaDTO;
+import cl.municipalidad.bff.client.BrigadeClient;
+import cl.municipalidad.bff.dto.BrigadeDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +23,16 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class BrigadaService {
+public class BrigadeService {
 
-    private final BrigadaClient brigadaClient;
+    private final BrigadeClient brigadaClient;
 
     /**
      * Lista todas las brigadas registradas.
      *
      * @return lista de BrigadaDTO
      */
-    public List<BrigadaDTO> listAll() {
+    public List<BrigadeDTO> listAll() {
         return brigadaClient.listAll();
     }
 
@@ -41,7 +41,7 @@ public class BrigadaService {
      *
      * @return lista de BrigadaDTO con estado DISPONIBLE
      */
-    public List<BrigadaDTO> listDisponibles() {
+    public List<BrigadeDTO> listDisponibles() {
         return brigadaClient.listDisponibles();
     }
 
@@ -51,7 +51,7 @@ public class BrigadaService {
      * @param tipo tipo de brigada (INCENDIO, RESCATE, MEDICA)
      * @return lista de BrigadaDTO del tipo indicado
      */
-    public List<BrigadaDTO> listByTipo(String tipo) {
+    public List<BrigadeDTO> listByTipo(String tipo) {
         return brigadaClient.listByTipo(tipo);
     }
 
@@ -61,7 +61,7 @@ public class BrigadaService {
      * @param id identificador de la brigada
      * @return BrigadaDTO con los datos de la brigada
      */
-    public BrigadaDTO findById(Long id) {
+    public BrigadeDTO findById(Long id) {
         return brigadaClient.findById(id);
     }
 
@@ -71,7 +71,7 @@ public class BrigadaService {
      * @param body mapa con los datos de la brigada
      * @return BrigadaDTO con la brigada creada
      */
-    public BrigadaDTO create(Map<String, Object> body) {
+    public BrigadeDTO create(Map<String, Object> body) {
         return brigadaClient.create(body);
     }
 
@@ -82,7 +82,7 @@ public class BrigadaService {
      * @param estado nuevo estado
      * @return BrigadaDTO con la brigada actualizada
      */
-    public BrigadaDTO updateEstado(Long id, String estado) {
+    public BrigadeDTO updateEstado(Long id, String estado) {
         return brigadaClient.updateEstado(id, estado);
     }
 
@@ -94,7 +94,7 @@ public class BrigadaService {
      * @param longitud nueva longitud
      * @return BrigadaDTO con la brigada actualizada
      */
-    public BrigadaDTO updateUbicacion(Long id, Double latitud, Double longitud) {
+    public BrigadeDTO updateUbicacion(Long id, Double latitud, Double longitud) {
         return brigadaClient.updateUbicacion(id, latitud, longitud);
     }
 
