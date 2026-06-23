@@ -3,11 +3,11 @@ package cl.municipalidad.bff.service;
 import cl.municipalidad.bff.client.ReportClient;
 import cl.municipalidad.bff.dto.ReportDTO;
 import cl.municipalidad.bff.dto.ReportMsDTO;
+import cl.municipalidad.bff.mapper.ReportMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,7 +25,6 @@ class ReportServiceTest {
     @Mock
     private ReportClient reportClient;
 
-    @InjectMocks
     private ReportService reportService;
 
     private ReportMsDTO mockMsDTO;
@@ -36,6 +35,7 @@ class ReportServiceTest {
         now = LocalDateTime.now();
         mockMsDTO = new ReportMsDTO(1L, "Incendio cerro", "Fuego activo",
                 -33.4569, -70.6483, "INCENDIO", "ACTIVO", "juan@gmail.com", now);
+        reportService = new ReportService(reportClient, new ReportMapper());
     }
 
     @Test

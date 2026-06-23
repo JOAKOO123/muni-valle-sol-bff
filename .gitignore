@@ -45,7 +45,18 @@ application-dev.properties
 secrets/
 
 # Local application properties
+src\main\resources\application.properties
 application.properties
+node_modules/
 
 # Env files
 *.env
+
+# Node (presente por package.json en la raiz)
+node_modules/
+package-lock.json
+package.json
+
+k8s/secret.yaml
+k8s/secret-db.yaml
+k8s/secret-jwt.yaml

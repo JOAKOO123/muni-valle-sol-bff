@@ -25,7 +25,7 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    private final TokenResponseDTO mockToken = new TokenResponseDTO("jwt-token-mock", "CIUDADANO");
+    private final TokenResponseDTO mockToken = new TokenResponseDTO("jwt-token-mock", "Bearer", 1800L);
     private final UserDTO mockUser = new UserDTO(1L, "Juan Pérez", "juan@gmail.com", "CIUDADANO", true);
 
     @Test
@@ -36,7 +36,9 @@ class AuthServiceTest {
 
         TokenResponseDTO resultado = authService.login(request);
 
-        assertThat(resultado.token()).isEqualTo("jwt-token-mock");
+        assertThat(resultado.accessToken()).isEqualTo("jwt-token-mock");
+        assertThat(resultado.tokenType()).isEqualTo("Bearer");
+        assertThat(resultado.expiresIn()).isEqualTo(1800L);
         verify(userClient, times(1)).login(request);
     }
 

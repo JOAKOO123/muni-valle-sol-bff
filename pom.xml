@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.0.6</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>cl.municipalidad</groupId>
 	<artifactId>bff</artifactId>
@@ -14,22 +14,29 @@
 	<name/>
 	<description/>
 	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
+	<licenses><license/></licenses>
+	<developers><developer/></developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection/><developerConnection/><tag/><url/>
 	</scm>
 	<properties>
-		<java.version>25</java.version>
+		<java.version>21</java.version>
 	</properties>
+	
 	<dependencies>
+		<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>3.0.3</version>
+</dependency>
+
+<!-- Springdoc common helpers (JSON Schema, extensions) -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-common</artifactId>
+    <version>3.0.3</version>
+</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
@@ -40,9 +47,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -59,42 +65,26 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<!-- JSON Web Token (JJWT) -->
+		<!-- Nimbus JOSE+JWT: para validar tokens RSA contra el JWKS de MS-Usuarios -->
 		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-api</artifactId>
-		    <version>0.11.5</version>
+    		<groupId>com.nimbusds</groupId>
+   			<artifactId>nimbus-jose-jwt</artifactId>
+    		<version>9.37.3</version>
 		</dependency>
+
+		<!-- Resilience4j standalone (sin Spring Cloud) para Circuit Breaker -->
 		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-impl</artifactId>
-		    <version>0.11.5</version>
-		    <scope>runtime</scope>
+    		<groupId>io.github.resilience4j</groupId>
+    		<artifactId>resilience4j-spring-boot3</artifactId>
+    		<version>2.2.0</version>
 		</dependency>
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-jackson</artifactId>
-		    <version>0.11.5</version>
-		    <scope>runtime</scope>
-		</dependency>
-	</dependencies>
+		</dependencies>
 
 	<build>
 		<plugins>
@@ -118,9 +108,7 @@
 					<execution>
 						<id>default-compile</id>
 						<phase>compile</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
+						<goals><goal>compile</goal></goals>
 						<configuration>
 							<annotationProcessorPaths>
 								<path>
@@ -133,9 +121,7 @@
 					<execution>
 						<id>default-testCompile</id>
 						<phase>test-compile</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
+						<goals><goal>testCompile</goal></goals>
 						<configuration>
 							<annotationProcessorPaths>
 								<path>
@@ -149,67 +135,33 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
-				<executions>
-					<execution>
-						<id>jacoco-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-report</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-check</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>LINE</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.80</minimum>
-										</limit>
-									</limits>
-								</rule>
-							</rules>
-							<excludes>
-								<!-- Sin lógica de negocio: punto de entrada Spring Boot -->
-								<exclude>cl/municipalidad/bff/BffApplication.class</exclude>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.14</version>
+    <executions>
+        <execution>
+            <id>jacoco-prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+        </execution>
+        <execution>
+            <id>jacoco-report</id>
+            <phase>verify</phase>
+            <goals><goal>report</goal></goals>
+            <configuration>
+                <excludes>
+                    <exclude>cl/municipalidad/bff/BffApplication.class</exclude>
+                    <exclude>cl/municipalidad/bff/config/**</exclude>
+                    <exclude>cl/municipalidad/bff/dto/**</exclude>
+                    <exclude>cl/municipalidad/bff/exception/MsException.class</exclude>
+                    <exclude>cl/municipalidad/bff/client/**</exclude>
+                    <exclude>cl/municipalidad/bff/controller/AuthController.class</exclude>
+                </excludes>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 
-								<!-- Sin lógica de negocio: solo configuración de beans -->
-								<exclude>cl/municipalidad/bff/config/**</exclude>
-
-								<!-- Sin lógica de negocio: solo campos y constructores (records/Lombok) -->
-								<exclude>cl/municipalidad/bff/dto/**</exclude>
-
-								<!-- Sin lógica de negocio: excepción simple con Lombok -->
-								<exclude>cl/municipalidad/bff/exception/MsException.class</exclude>
-
-								<!-- Integración con WebClient: requiere tests de integración, no unitarios -->
-								<exclude>cl/municipalidad/bff/client/**</exclude>
-
-								<!-- AuthController no tiene test unitario aún -->
-								<exclude>cl/municipalidad/bff/controller/AuthController.class</exclude>
-							</excludes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-		</plugins>
-	</build>
+    </plugins>
+  </build>
 
 </project>

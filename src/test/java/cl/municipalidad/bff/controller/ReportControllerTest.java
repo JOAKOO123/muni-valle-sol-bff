@@ -1,14 +1,19 @@
 package cl.municipalidad.bff.controller;
 
+import cl.municipalidad.bff.dto.AlertDTO;
+import cl.municipalidad.bff.dto.CreateReportRequest;
 import cl.municipalidad.bff.dto.LocationDTO;
 import cl.municipalidad.bff.dto.ReportDTO;
+import cl.municipalidad.bff.dto.UpdateStatusRequest;
+import cl.municipalidad.bff.dto.UpdateTitleRequest;
+import cl.municipalidad.bff.service.AlertService;
+import cl.municipalidad.bff.service.ReportRequestHandler;
 import cl.municipalidad.bff.service.ReportService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +35,12 @@ class ReportControllerTest {
 
         @Mock
         private ReportService reportService;
+
+        @Mock
+        private ReportRequestHandler reportRequestHandler;
+
+        @Mock
+        private AlertService alertService;
 
         @InjectMocks
         private ReportController reportController;
@@ -105,7 +116,7 @@ class ReportControllerTest {
     @DisplayName("POST /api/reportes debería retornar 201 con el reporte creado")
     void create_retorna201ConReporte() throws Exception {
         Map<String, Object> body = Map.of("titulo", "Nuevo", "tipo", "HUMO");
-        when(reportService.create(any())).thenReturn(mockReporte);
+        when(reportRequestHandler.handleCreate(any())).thenReturn(mockReporte);
 
         mockMvc.perform(post("/api/reportes")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +130,7 @@ class ReportControllerTest {
     void updateStatus_retorna200() throws Exception {
         ReportDTO actualizado = new ReportDTO(1L, "Incendio", "Desc", "INCENDIO", "EN_REVISION",
                 "juan@gmail.com", new LocationDTO(-33.0, -70.0), LocalDateTime.now());
-        when(reportService.updateStatus(1L, "EN_REVISION")).thenReturn(actualizado);
+        when(reportRequestHandler.handleUpdateStatus(eq(1L), any())).thenReturn(actualizado);
 
         mockMvc.perform(put("/api/reportes/1/estado")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +144,7 @@ class ReportControllerTest {
     void updateTitle_retorna200() throws Exception {
         ReportDTO actualizado = new ReportDTO(1L, "Nuevo título", "Desc", "INCENDIO", "ACTIVO",
                 "juan@gmail.com", new LocationDTO(-33.0, -70.0), LocalDateTime.now());
-        when(reportService.updateTitle(1L, "Nuevo título")).thenReturn(actualizado);
+        when(reportRequestHandler.handleUpdateTitle(eq(1L), any())).thenReturn(actualizado);
 
         mockMvc.perform(put("/api/reportes/1")
                         .contentType(MediaType.APPLICATION_JSON)
