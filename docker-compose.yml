@@ -74,7 +74,7 @@ services:
       MS_USUARIOS_URL: http://ms-usuarios:8081
       MS_REPORTES_URL: http://ms-reportes:8082
       MS_BRIGADAS_URL: http://ms-brigadas:8084
-      MS_ALERTAS_URL: http://ms-alertas:8083/api/v1
+      MS_ALERTAS_URL: http://ms-alertas:8083
       JWT_COOKIE_SECURE: "false"
       SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
