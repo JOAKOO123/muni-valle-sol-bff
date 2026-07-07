@@ -76,6 +76,7 @@ services:
       MS_BRIGADAS_URL: http://ms-brigadas:8084
       MS_ALERTAS_URL: http://ms-alertas:8083/api/v1
       JWT_COOKIE_SECURE: "false"
+      SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
       - ms-usuarios
       - ms-reportes
