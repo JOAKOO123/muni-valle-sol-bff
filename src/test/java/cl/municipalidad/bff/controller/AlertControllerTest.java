@@ -52,7 +52,7 @@ class AlertControllerTest {
         // las excepciones lanzadas por el handler (IllegalArgumentException)
         // se traduzcan a respuestas HTTP reales, igual que en producción.
         mockMvc = MockMvcBuilders.standaloneSetup(alertController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(new cl.municipalidad.bff.glitchtip.GlitchTipErrorReporter(), new cl.municipalidad.bff.glitchtip.GlitchTipLogger()))
                 .build();
     }
 

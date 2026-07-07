@@ -33,7 +33,7 @@ class GlobalExceptionHandlerTest {
 
         @BeforeEach
         void setUp() {
-                globalExceptionHandler = new GlobalExceptionHandler();
+                globalExceptionHandler = new GlobalExceptionHandler(new cl.municipalidad.bff.glitchtip.GlitchTipErrorReporter(), new cl.municipalidad.bff.glitchtip.GlitchTipLogger());
                 mockMvc = MockMvcBuilders.standaloneSetup(alertController)
                                 .setControllerAdvice(globalExceptionHandler)
                                 .build();
