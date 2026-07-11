@@ -1,10 +1,15 @@
 package cl.municipalidad.bff.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import cl.municipalidad.bff.glitchtip.GlitchTipErrorReporter;
+import cl.municipalidad.bff.glitchtip.GlitchTipLogger;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -27,6 +32,16 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private final GlitchTipErrorReporter errorReporter;
+    private final GlitchTipLogger glitchTipLogger;
+
+    public GlobalExceptionHandler(GlitchTipErrorReporter errorReporter, GlitchTipLogger glitchTipLogger) {
+        this.errorReporter = errorReporter;
+        this.glitchTipLogger = glitchTipLogger;
+    }
+
     /**
      * Maneja errores de validacion de campos ({@code @Valid}).
      *
@@ -45,6 +60,7 @@ public class GlobalExceptionHandler {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
+        glitchTipLogger.warn(logger, "Validacion fallida en BFF: {}", mensaje);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             Map.of(
                 "error", mensaje,
@@ -68,6 +84,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        glitchTipLogger.warn(logger, "Argumento invalido en BFF: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             Map.of(
                 "error", ex.getMessage(),
@@ -88,6 +105,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MsException.class)
     public ResponseEntity<Map<String, Object>> handleMsException(MsException ex) {
+        if (ex.getStatus().is5xxServerError()) {
+            errorReporter.captureException(ex, "Error de microservicio propagado al BFF");
+        } else {
+            glitchTipLogger.warn(logger, "Microservicio respondio con error: {} (status={})", ex.getMessage(), ex.getStatus());
+        }
         return ResponseEntity.status(ex.getStatus()).body(
             Map.of(
                 "error", ex.getMessage(),
@@ -105,6 +127,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
+        errorReporter.captureException(ex, "Excepcion no controlada en BFF");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
             Map.of(
                 "error", ex.getMessage(),
