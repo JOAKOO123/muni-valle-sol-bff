@@ -13,6 +13,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_PRIVATE_KEY_PATH: /app/keys/private_key.pem
       JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
+      SENTRY_DSN: ${SENTRY_DSN_USUARIOS}
     volumes:
       - ../muni-valle-sol-ms-usuarios/private_key.pem:/app/keys/private_key.pem:ro
       - ../muni-valle-sol-ms-usuarios/public_key.pem:/app/keys/public_key.pem:ro
@@ -31,6 +32,7 @@ services:
       DB_URL: jdbc:postgresql://ep-orange-bar-an1823ou-pooler.c-6.us-east-1.aws.neon.tech/ms-reportes?sslmode=require&channelBinding=require
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      SENTRY_DSN: ${SENTRY_DSN_REPORTES}
     networks:
       - muni-network
     restart: unless-stopped
@@ -46,6 +48,7 @@ services:
       DB_URL: jdbc:postgresql://ep-orange-bar-an1823ou-pooler.c-6.us-east-1.aws.neon.tech/ms-brigadas?sslmode=require&channelBinding=require
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      SENTRY_DSN: ${SENTRY_DSN_BRIGADAS}
     networks:
       - muni-network
     restart: unless-stopped
@@ -59,6 +62,7 @@ services:
       - "8083:8083"
     environment:
       SPRING_DATA_MONGODB_URI: ${MONGO_URI}
+      SENTRY_DSN: ${SENTRY_DSN_ALERTAS}
     networks:
       - muni-network
     restart: unless-stopped
@@ -76,7 +80,7 @@ services:
       MS_BRIGADAS_URL: http://ms-brigadas:8084
       MS_ALERTAS_URL: http://ms-alertas:8083
       JWT_COOKIE_SECURE: "false"
-      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_DSN: ${SENTRY_DSN_BFF}
     depends_on:
       - ms-usuarios
       - ms-reportes
